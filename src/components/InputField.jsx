@@ -1,10 +1,12 @@
 import React from 'react'
 
-export default function InputField({title, value, onChange}) {
+export default function InputField({title, name, value, onChange}) {
+    onChange = onChange || (() => {});
+
     return (
-        <section className='flex flex-col w-[200px] p-4' >
-            <label className='text-center font-extrabold text-xl'>{title}</label>
-            <input type="number" className='p-3 text-white bg-gray-600 mt-3 h-[40px] rounded-xl caret-white' onChange={(e) => onChange(e.target.value)} value={value}/>
+        <section className='flex flex-col items-center p-4' >
+            <label className='text-center font-bold text-m'>{title}</label>
+            <input type="number" name={name} className='w-[200px] h-[40px] text-lg p-3 text-white bg-gray-600 mt-3 rounded-xl caret-white' onChange={(e) => onChange(e.target.value)} value={value}/>
         </section>
     )
 }

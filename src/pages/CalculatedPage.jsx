@@ -2,6 +2,9 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 
 export default function CalculatedPage() {
+    const result = window.history.state.usr;
+
+
     return (
         <>
             <div className='flex flex-row justify-evenly items-baseline gap-5 mb-10'>
@@ -11,7 +14,7 @@ export default function CalculatedPage() {
             </div>
 
             <div>
-                MAIN
+                Handicap result: {result}
             </div>
 
 

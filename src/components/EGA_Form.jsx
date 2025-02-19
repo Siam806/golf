@@ -1,31 +1,47 @@
 import React from 'react'
 import InputField from './InputField';
-import { Link } from 'react-router-dom';
+import { Link, redirect, useNavigate } from 'react-router-dom';
 
 
 export default function EGAForm() {
-  const ergebnis = 100;
+  
+  const navigate = useNavigate();
 
-  const hc = (e) => { console.log(e) }
-  const par = (e) => { console.log(e) }
+  const calcHandicap = (e) => {
+    e.preventDefault();
+    const props = Object.fromEntries(new FormData(e.target));
+    
+
+    // TODO: calculate handicap here
+    const result = 0;
+
+    navigate('/calculated', { state: result });
+  }
 
   return (
     <div>
-      <div className='flex justify-center items-center flex-col'>
+      <form className='flex flex-col items-stretch gap-1 mt-3' onSubmit={(e) => calcHandicap(e)}>
 
-        <section className='flex justify-center flex-row mt-10 mb-15'>
-          <InputField title="bisheriges Handicap" onChange={hc} />
-          <div className='w-20'></div>
-          <InputField title="PAR des Golfplatzes" onChange={par} />
+        <section className='grid grid-cols-2 grid-rows-2 my-1 justify-around'>
+
+          <InputField title="bisheriges Handicap" name="hc" />
+
+          <InputField title="PAR des Golfplatzes" name="par" />
+
+          <InputField title="Anzahl Schläge" name="count" />
+
+          <label className='justify-self-center flex items-center gap-2'>
+            8er Loch:
+            <input className='scale-150' type="checkbox" name="is8Holes" />
+          </label>
+
         </section>
 
-        <InputField title="Anzahl Schläge" value={ergebnis} />
+        <section className='flex justify-center mt-10'>
+          <button type='submit' className="text-m border-2 bg-gray-700 px-5 py-3 rounded-2xl active:bg-gray-600">BERECHNEN</button>
+        </section>
 
-        <button className="mt-15 border-2 bg-gray-700 px-4 py-2 rounded-2xl active:bg-gray-600">
-          <Link to="/calculated">BERECHNEN</Link>
-        </button>
-
-      </div>
+      </form>
 
     </div>
   )
