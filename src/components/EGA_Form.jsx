@@ -1,5 +1,7 @@
 import React from 'react'
-import InputField from './InputField'
+import InputField from './InputField';
+import { Link } from 'react-router-dom';
+
 
 export default function EGAForm() {
   const ergebnis = 100;
@@ -17,8 +19,11 @@ export default function EGAForm() {
           <InputField title="PAR des Golfplatzes" onChange={par} />
         </section>
 
-        <InputField title="Ergebnis" value={ergebnis} />
+        <InputField title="Anzahl Schläge" value={ergebnis} />
 
+        <button className="mt-15 border-2 bg-gray-700 px-4 py-2 rounded-2xl active:bg-gray-600">
+          <Link to="/calculated">BERECHNEN</Link>
+        </button>
 
       </div>
 
