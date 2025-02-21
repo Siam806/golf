@@ -19,3 +19,25 @@
 <br>
 
 3. Third, start coding!
+
+## Structure
+
+playwright
+--index.html
+--index.js
+public
+--favicon.png
+src
+--assets
+----golf-bg.jpg
+--components
+----EGA_Form.jsx
+----InputField.jsx
+--pages
+----CalculatedPage.jsx
+----HomePage.jsx
+--App.jsx
+--index.css
+--main.jsx
+...
+
