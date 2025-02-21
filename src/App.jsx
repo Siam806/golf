@@ -2,8 +2,11 @@ import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import HomePage from "./pages/HomePage";
 import EGAPage from "./pages/EGAPage";
-import WHSPage from "./pages/WHSPage";
+import SDPage from "./pages/SDPage";
 import CalculatedPage from "./pages/CalculatedPage";
+import ResultsPage from "./pages/ResultsPage";
+import RoundDetailsPage from "./pages/RoundDetailsPage";
+import WHSPage from './pages/WHSPage';
 
 export default function App() {
   return (
@@ -15,8 +18,11 @@ export default function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/ega" element={<EGAPage />} />
+            <Route path="/sd" element={<SDPage />} />
+            <Route path="/results" element={<ResultsPage  />} />
             <Route path="/whs" element={<WHSPage />} />
             <Route path="/calculated" element={<CalculatedPage />} />
+            <Route path="/round/:roundName" element={<RoundDetailsPage />} /> {/* Hier wird die Detail-Seite aufgerufen */}
           </Routes>
         </main>
       </div>
