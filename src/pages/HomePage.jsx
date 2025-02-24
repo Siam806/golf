@@ -2,66 +2,101 @@ import React, { useState, useEffect } from 'react';
 
 export default function Home() {
   const [userName, setUserName] = useState('');
-  const [inputValue, setInputValue] = useState(''); // Zustand für den Input
+  const [inputValue, setInputValue] = useState('');
+  const [role, setRole] = useState('');
+  const [email, setEmail] = useState('');
 
-  // Prüfen, ob der Name bereits im localStorage gespeichert ist
   useEffect(() => {
     const storedName = localStorage.getItem('userName');
-    if (storedName) {
-      setUserName(storedName); // Wenn der Name gespeichert ist, setzen wir ihn
-    }
+    const storedRole = localStorage.getItem('userRole');
+    const storedEmail = localStorage.getItem('userEmail');
+
+    if (storedName) setUserName(storedName);
+    if (storedRole) setRole(storedRole);
+    if (storedEmail) setEmail(storedEmail);
   }, []);
 
-  // Funktion zum Setzen des Namens
-  const handleNameChange = (e) => {
-    setInputValue(e.target.value); // Setze den Wert des Inputs
-  };
+  const handleNameChange = (e) => setInputValue(e.target.value);
+  const handleRoleChange = (e) => setRole(e.target.value);
+  const handleEmailChange = (e) => setEmail(e.target.value);
 
-  // Funktion zum Speichern des Namens
-  const saveUserName = () => {
-    if (inputValue.trim() !== '') {
+  const saveUserData = () => {
+    if (inputValue.trim() !== '' && email.trim() !== '' && role !== '') {
       localStorage.setItem('userName', inputValue);
+      localStorage.setItem('userRole', role);
+      localStorage.setItem('userEmail', email);
       setUserName(inputValue);
-      setInputValue(''); // Input nach dem Speichern zurücksetzen
+      setInputValue('');
+    } else {
+      alert('Bitte alle Felder ausfüllen!');
     }
   };
 
-  // Funktion zum Löschen des Namens
-  const deleteUserName = () => {
+  const deleteUserData = () => {
     localStorage.removeItem('userName');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('userEmail');
     setUserName('');
+    setRole('');
+    setEmail('');
   };
 
   return (
     <div className="text-center">
-      <h1 className="text-5xl font-extrabold mt-2 mb-2">HANDICALC</h1>
+      <h1 className="text-5xl font-extrabold mt-2 mb-4">HANDICALC</h1>
 
-      {/* Wenn der Benutzer noch keinen Namen eingegeben hat */}
       {!userName ? (
-        <div>
-          <p>Wie heißt du?</p>
-          <input
-            type="text"
-            value={inputValue}
-            onChange={handleNameChange}
-            placeholder="Gib deinen Namen ein"
-            className="p-2 mt-2 border rounded"
-          />
-          <button
-            onClick={saveUserName}
-            className="ml-2 bg-green-500 text-white px-4 py-2 rounded"
-          >
+        <div className="space-y-4">
+          <div>
+            <label className="block font-semibold">Wie heißt du?</label>
+            <input
+              type="text"
+              value={inputValue}
+              onChange={handleNameChange}
+              placeholder="Gib deinen Namen ein"
+              className="w-64 p-3 border rounded bg-gray-100 text-black"
+            />
+          </div>
+
+          <div>
+            <label className="block font-semibold">Wähle deine Rolle:</label>
+            <select
+              value={role}
+              onChange={handleRoleChange}
+              className="w-64 p-3 border rounded bg-gray-100 text-black"
+            >
+              <option value="" disabled>
+                -- Wähle eine Rolle --
+              </option>
+              <option value="Einfacher Golfer">Einfacher Golfer</option>
+              <option value="Sekretärin">Sekretärin</option>
+              <option value="Spielführer">Spielführer</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block font-semibold">Gib deine E-Mail ein:</label>
+            <input
+              type="email"
+              value={email}
+              onChange={handleEmailChange}
+              placeholder="E-Mail-Adresse"
+              className="w-64 p-3 border rounded bg-gray-100 text-black"
+            />
+          </div>
+
+          <button onClick={saveUserData} className="block mx-auto mt-4 bg-green-500 text-white px-4 py-2 rounded">
             Speichern
           </button>
         </div>
       ) : (
-        <div>
-          <p>Hallo, {userName}!</p>
-          <button
-            onClick={deleteUserName}
-            className="mt-4 bg-red-500 text-white px-4 py-2 rounded"
-          >
-            Namen löschen
+        <div className="space-y-4">
+          <p className="text-lg">👋 Hallo, <span className="font-bold">{userName}</span>!</p>
+          <p className="text-lg">🛠 Rolle: <span className="font-bold">{role}</span></p>
+          <p className="text-lg">📧 E-Mail: <span className="font-bold">{email}</span></p>
+
+          <button onClick={deleteUserData} className="mt-4 bg-red-500 text-white px-4 py-2 rounded">
+            Daten löschen
           </button>
         </div>
       )}
