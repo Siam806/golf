@@ -28,7 +28,7 @@ const Navbar = () => {
   }, []); // Der Effekt läuft nur einmal, beim ersten Laden der Komponente
 
   return (
-    <nav className="bg-green-800 text-white p-4 flex justify-between items-center">
+    <nav className="fixed top-0 left-0 z-50 w-screen bg-green-800 text-white p-4 flex justify-between items-center">
       <Link to="/" className="flex items-center gap-2 hover:underline">
         <img width="40" src="/favicon.png" alt="Favicon" />
         <h1 className="text-xl font-bold">Handicalc</h1>
