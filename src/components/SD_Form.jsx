@@ -26,8 +26,13 @@ const SDForm = () => {
 
   const saveRound = () => {
     // Überprüfen, ob der Name der Runde bereits existiert
-    const savedRounds = JSON.parse(localStorage.getItem("rounds")) || [];
-    const isDuplicate = savedRounds.some((round) => round.name === roundName);
+    const savedRounds = JSON.parse(localStorage.getItem("rounds")) || {};
+    const roundsKey = localStorage.getItem("userName")+"__"+localStorage.getItem("userEmail");
+    if (!(roundsKey in savedRounds)) {
+      savedRounds[roundsKey] = [];
+    }
+    const userRounds = savedRounds[roundsKey];
+    const isDuplicate = userRounds.some((round) => round.name === roundName);
   
     if (isDuplicate) {
       alert("Dieser Name ist bereits vergeben! Bitte wähle einen anderen.");
@@ -36,7 +41,7 @@ const SDForm = () => {
   
     // Runde speichern, wenn der Name einzigartig ist
     const round = {
-      name: roundName || `Runde_${savedRounds.length + 1}`, // Standardname falls keiner eingegeben wird
+      name: roundName || `Runde_${userRounds.length + 1}`, // Standardname falls keiner eingegeben wird
       slopeRating,
       courseRating,
       par,
@@ -44,7 +49,7 @@ const SDForm = () => {
       sd,
     };
   
-    savedRounds.push(round);
+    userRounds.push(round);
     localStorage.setItem("rounds", JSON.stringify(savedRounds));
   
     alert("Runde gespeichert!");

@@ -7,7 +7,11 @@ const ResultsPage = () => {
   // Runden aus dem localStorage laden
   useEffect(() => {
     const savedRounds = JSON.parse(localStorage.getItem("rounds")) || [];
-    setRounds(savedRounds);
+    const roundsKey = localStorage.getItem("userName")+"__"+localStorage.getItem("userEmail");
+    if (!(roundsKey in savedRounds)) {
+      savedRounds[roundsKey] = [];
+    }
+    setRounds(savedRounds[roundsKey]);
   }, []);
 
   const handleDelete = (roundName) => {

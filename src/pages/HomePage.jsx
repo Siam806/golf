@@ -7,13 +7,119 @@ export default function Home() {
   const [email, setEmail] = useState('');
 
   useEffect(() => {
+    const testUser = "test_user";
+    const testEmail = "test@example.com";
+    const testKey = `${testUser}__${testEmail}`;
+    const testRounds = [
+    {
+      name: "Runde 1",
+      slopeRating: 115,
+      courseRating: 70.9,
+      par: 72,
+      scores: [5, 6, 8, 7, 6, 6, 6, 6, 6, 7, 6, 6, 5, 6, 6, 6, 5, 6],
+      sd: 37.4,
+    },
+    {
+      name: "Runde 2",
+      slopeRating: 115,
+      courseRating: 70.9,
+      par: 72,
+      scores: [4, 5, 5, 6, 6, 5, 6, 9, 5, 5, 6, 6, 5, 6, 6, 6, 5, 6],
+      sd: 29.6,
+    },
+    {
+      name: "Runde 3",
+      slopeRating: 130,
+      courseRating: 72.3,
+      par: 72,
+      scores: [4, 5, 5, 6, 6, 7, 4, 8, 4, 5, 6, 6, 5, 6, 6, 6, 5, 6],
+      sd: 24.1,
+    },
+    {
+      name: "Runde 4",
+      slopeRating: 130,
+      courseRating: 72.3,
+      par: 72,
+      scores: [5, 6, 6, 7, 6, 6, 4, 7, 6, 7, 6, 6, 5, 5, 6, 6, 5, 6],
+      sd: 28.4,
+    },
+    {
+      name: "Runde 5",
+      slopeRating: 115,
+      courseRating: 70.9,
+      par: 72,
+      scores: [4, 5, 5, 6, 5, 5, 4, 5, 5, 6, 5, 5, 4, 5, 5, 6, 5, 5],
+      sd: 18.8,
+    },
+    {
+      name: "Runde 6",
+      slopeRating: 115,
+      courseRating: 34.1,
+      par: 35,
+      scores: [5, 6, 6, 7, 6, 5, 5, 6, 6],
+      sd: 31.1
+    },
+    {
+      name: "Runde 7",
+      slopeRating: 115,
+      courseRating: 34.1,
+      par: 35,
+      scores: [5, 7, 9, 7, 6, 6, 6, 6, 6],
+      sd: 36
+    },
+    {
+      name: "Runde 8",
+      slopeRating: 115,
+      courseRating: 70.9,
+      par: 72,
+      scores: [4, 5, 5, 6, 6, 5, 4, 5, 5, 7, 5, 5, 4, 5, 5, 7, 5, 5],
+      sd: 21.7
+    },
+    {
+      name: "Runde 9",
+      slopeRating: 130,
+      courseRating: 72.3,
+      par: 72,
+      scores: [4, 5, 5, 6, 5, 5, 4, 5, 5, 6, 5, 5, 4, 5, 5, 6, 5, 5],
+      sd: 15.4
+    },
+    {
+      name: "Runde 10",
+      slopeRating: 130,
+      courseRating: 35.7,
+      par: 35,
+      scores: [4, 5, 5, 6, 5, 5, 4, 5, 5],
+      sd: 21.7
+    },
+    {
+      name: "Runde 11",
+      slopeRating: 130,
+      courseRating: 35.7,
+      par: 35,
+      scores: [5, 6, 6, 7, 6, 6, 5, 6, 6],
+      sd: 28.6
+    },
+    {
+      name: "Runde 12",
+      slopeRating: 130,
+      courseRating: 72.3,
+      par: 72,
+      scores: [6, 7, 7, 8, 7, 7, 6, 7, 10, 8, 7, 7, 6, 7, 7, 8, 7, 7],
+      sd: 46.7
+    }];
+
+
+    const savedRounds = JSON.parse(localStorage.getItem("rounds")) || {};
+    savedRounds[testKey] = testRounds;
+    localStorage.setItem("rounds", JSON.stringify(savedRounds));
+    
     const storedName = localStorage.getItem('userName');
     const storedRole = localStorage.getItem('userRole');
     const storedEmail = localStorage.getItem('userEmail');
 
     if (storedName) setUserName(storedName);
     if (storedRole) setRole(storedRole);
-    if (storedEmail) setEmail(storedEmail);
+    if (storedEmail) setEmail(storedEmail);    
   }, []);
 
   const handleNameChange = (e) => setInputValue(e.target.value);
