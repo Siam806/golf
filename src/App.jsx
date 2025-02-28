@@ -6,79 +6,103 @@ import SDPage from "./pages/SDPage";
 import CalculatedPage from "./pages/CalculatedPage";
 import ResultsPage from "./pages/ResultsPage";
 import RoundDetailsPage from "./pages/RoundDetailsPage";
-import WHSPage from './pages/WHSPage';
+import WHSPage from "./pages/WHSPage";
 import { useEffect } from "react";
-import { mockData } from './utils/mockData';
+import { mockData } from "./utils/mockData";
+import { AuthContextProvider } from "./context/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
+import MembersPage from "./pages/MembersPage";
 
+// Rollen, die ein Benutzer haben kann
+export const availableRoles = ["Golfer", "Spielführer", "Sekretär"];
 
-const routeConfig = [
-  {
-    path: "/",
-    element: <HomePage />,
-    roles: ['Golfer', 'Spielführer', 'Sekretär'],
-
-  },
-  {
-    path: "/ega",
-    element: <EGAPage />,
-    roles: ['Golfer'],
-
-  },
-  {
-    path: "/sd",
-    element: <SDPage />,
-    roles: ['Golfer'],
-
-  },
-  {
-    path: "/results",
-    element: <ResultsPage />,
-    roles: ['Golfer'],
-
-  },
-  {
-    path: "/whs",
-    element: <WHSPage />,
-    roles: ['Golfer'],
-
-  },
-  {
-    path: "/calculated",
-    element: <CalculatedPage />,
-    roles: ['Golfer'],
-
-  },
-  {
-    path: "/round/:roundName",
-    element: <RoundDetailsPage />,
-    roles: ['Golfer'],
-
-  },
+// Konfiguration der Routen
+export const routesMap = [
+	{
+		path: "/",
+		title: "Home",
+		element: <HomePage />,
+		roles: availableRoles,
+	},
+	{
+		path: "/members",
+		title: "Mitglieder",
+		element: <MembersPage />,
+		roles: [availableRoles[2]],
+	},
+	{
+		path: "/ega",
+		title: "EGA",
+		element: <EGAPage />,
+		public: false,
+		roles: [availableRoles[0]],
+	},
+	{
+		path: "/sd",
+		title: "SD",
+		element: <SDPage />,
+		public: false,
+		roles: [availableRoles[0]],
+	},
+	{
+		path: "/results",
+		title: "Ergebnisse",
+		element: <ResultsPage />,
+		public: false,
+		roles: availableRoles.slice(0, 3),
+	},
+	{
+		path: "/whs",
+		title: "WHS",
+		element: <WHSPage />,
+		public: false,
+		roles: availableRoles.slice(0, 1),
+	},
+	{
+		path: "/calculated",
+		title: "",
+		element: <CalculatedPage />,
+		public: false,
+		roles: availableRoles.slice(0, 3),
+	},
+	{
+		path: "/round/:roundName",
+		title: "",
+		element: <RoundDetailsPage />,
+		public: false,
+		roles: availableRoles.slice(0, 3),
+	},
 ];
 
-
 export default function App() {
+	// useEffect, der beim ersten Laden die Benutzerdaten speichert
+	useEffect(() => {
+		// Bekannte Benutzer aus dem localStorage holen
+		const knownUsers = JSON.parse(localStorage.users ?? "[]");
+		// E-Mails der bekannten Benutzer holen
+		const knownEmails = knownUsers.map((user) => user.email);
+		// Neue Benutzer filtern
+		const newUsers = mockData.filter((user) => !knownEmails.includes(user.email));
+		// Neue Benutzer in die Liste der bekannten Benutzer speichern
+		localStorage.setItem("users", JSON.stringify([...knownUsers, ...newUsers]));
+	}, []);
 
-  useEffect(() => {
-    const knownUsers = JSON.parse(localStorage.users ?? '[]');
-    const knownEmails = knownUsers.map(user => user.email);
-    const newUsers = mockData.filter(user => !knownEmails.includes(user.email));
-    localStorage.setItem('users', JSON.stringify([...knownUsers, ...newUsers]));
-  }, []);
-
-  return (
-    <>
-      <Navbar />
-      <div className="h-screen w-screen m-0 p-0 text-blue-50 bg-[#101217] relative flex items-center justify-center">
-        <div className="absolute inset-0 bg-[url('./assets/golf-bg.jpg')] bg-center bg-cover bg-no-repeat filter blur-xs bg-black bg-opacity-50 z-0"></div>
-        <main className="relative z-10 p-10 bg-white/10 backdrop-blur-lg rounded-4xl shadow-lg max-w-screen-md w-full text-center">
-          <Routes>
-            {routeConfig.map((route, index) => (
-              <Route key={index} path={route.path} element={route.element} />
-            ))}
-          </Routes>
-        </main>
-      </div>
-    </>
-  );
+	return (
+		<AuthContextProvider>
+			<Navbar />
+			<div className="h-screen w-screen m-0 p-0 text-blue-50 bg-[#101217] relative flex items-center justify-center">
+				<div className="absolute inset-0 bg-[url('./assets/golf-bg.jpg')] bg-center bg-cover bg-no-repeat filter blur-sm bg-black bg-opacity-50 z-0"></div>
+				<main className="relative min-w-[45%] max-w-[90%] z-10 p-4 bg-green-200/20 rounded-4xl">
+					<div className="min-h-[65vh] flex justify-center items-center bg-gray-900 rounded-4xl p-8 text-green-400 shadow-lg shadow-green-400 text-xs">
+						<Routes>
+							{routesMap.map((route, index) => (
+								<Route key={index} path={route.path} element={<ProtectedRoute element={route.element} allowedRoles={route.roles} />} />
+							))}
+							<Route path="/unauthorized" element={<h1>404 - Seite nicht gefunden</h1>} />
+						</Routes>
+					</div>
+				</main>
+			</div>
+		</AuthContextProvider>
+	);
 }

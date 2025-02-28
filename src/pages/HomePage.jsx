@@ -1,105 +1,57 @@
-import React, { useState, useEffect } from 'react';
+import { useContext } from "react";
+import InputField from "../components/InputField";
+import CustomButton from "../components/CustomButton";
+import { availableRoles } from "../App";
+import { authContext } from "../context/AuthContext";
 
 export default function Home() {
-  const [userName, setUserName] = useState('');
-  const [inputValue, setInputValue] = useState('');
-  const [role, setRole] = useState('');
-  const [email, setEmail] = useState('');
+	// Benutzerdaten aus dem AuthContext holen
+	const { currentUser, login, logout } = useContext(authContext);
 
-  useEffect(() => {
-    const storedName = localStorage.getItem('userName');
-    const storedRole = localStorage.getItem('userRole');
-    const storedEmail = localStorage.getItem('userEmail');
+	// Funktion zum Speichern der Benutzerdaten
+	const saveUserData = (e) => {
+		e.preventDefault();
+		// Benutzerdaten aus dem Formular holen
+		const { userName, userRole, userEmail } = Object.fromEntries(new FormData(e.target));
+		login(userName, userRole, userEmail);
+	};
 
-    if (storedName) setUserName(storedName);
-    if (storedRole) setRole(storedRole);
-    if (storedEmail) setEmail(storedEmail);
-  }, []);
+	// Funktion zum Löschen der Benutzerdaten
+	const deleteUserData = () => {
+		logout();
+	};
 
-  const handleNameChange = (e) => setInputValue(e.target.value);
-  const handleRoleChange = (e) => setRole(e.target.value);
-  const handleEmailChange = (e) => setEmail(e.target.value);
+	return (
+		<div className="text-center">
+			<h1 className="text-2xl font-extrabold mb-10">HANDICALC</h1>
 
-  const saveUserData = () => {
-    if (inputValue.trim() !== '' && email.trim() !== '' && role !== '') {
-      localStorage.setItem('userName', inputValue);
-      localStorage.setItem('userRole', role);
-      localStorage.setItem('userEmail', email);
-      setUserName(inputValue);
-      setInputValue('');
-    } else {
-      alert('Bitte alle Felder ausfüllen!');
-    }
-  };
+			{!currentUser ? (
+				// Formular zum Speichern der Benutzerdaten
+				<form className="space-y-5" onSubmit={saveUserData}>
+					<InputField required title="Wie heißt du:" name="userName" placeholder="Gib deinen Namen ein" />
 
-  const deleteUserData = () => {
-    localStorage.removeItem('userName');
-    localStorage.removeItem('userRole');
-    localStorage.removeItem('userEmail');
-    setUserName('');
-    setRole('');
-    setEmail('');
-  };
+					<InputField required title="Wähle deine Rolle:" name="userRole" optionsList={["-- Wähle eine Rolle --", ...availableRoles]} />
 
-  return (
-    <div className="text-center">
-      <h1 className="text-5xl font-extrabold mt-2 mb-4">HANDICALC</h1>
+					<InputField required title="Gib deine E-Mail ein:" type="email" name="userEmail" placeholder="E-Mail-Adresse" />
 
-      {!userName ? (
-        <div className="space-y-4">
-          <div>
-            <label className="block font-semibold">Wie heißt du?</label>
-            <input
-              type="text"
-              value={inputValue}
-              onChange={handleNameChange}
-              placeholder="Gib deinen Namen ein"
-              className="w-64 p-3 border rounded bg-gray-100 text-black"
-            />
-          </div>
+					<CustomButton text="Speichern" type="submit" styles="bg-green-500" />
+				</form>
+			) : (
+				// Anzeige der Benutzerdaten
+				<div className="space-y-5 text-sm">
+					<p>
+						👋 Hallo, <span className="font-bold">{currentUser?.userName ?? ""}</span>!
+					</p>
+					<p>
+						🛠 Rolle: <span className="font-bold">{currentUser?.userRole ?? ""}</span>
+					</p>
+					<p>
+						📧 E-Mail: <span className="font-bold">{currentUser?.userEmail ?? ""}</span>
+					</p>
 
-          <div>
-            <label className="block font-semibold">Wähle deine Rolle:</label>
-            <select
-              value={role}
-              onChange={handleRoleChange}
-              className="w-64 p-3 border rounded bg-gray-100 text-black"
-            >
-              <option value="" disabled>
-                -- Wähle eine Rolle --
-              </option>
-              <option value="Einfacher Golfer">Einfacher Golfer</option>
-              <option value="Sekretärin">Sekretärin</option>
-              <option value="Spielführer">Spielführer</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block font-semibold">Gib deine E-Mail ein:</label>
-            <input
-              type="email"
-              value={email}
-              onChange={handleEmailChange}
-              placeholder="E-Mail-Adresse"
-              className="w-64 p-3 border rounded bg-gray-100 text-black"
-            />
-          </div>
-
-          <button onClick={saveUserData} className="block mx-auto mt-4 bg-green-500 text-white px-4 py-2 rounded">
-            Speichern
-          </button>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <p className="text-lg">👋 Hallo, <span className="font-bold">{userName}</span>!</p>
-          <p className="text-lg">🛠 Rolle: <span className="font-bold">{role}</span></p>
-          <p className="text-lg">📧 E-Mail: <span className="font-bold">{email}</span></p>
-
-          <button onClick={deleteUserData} className="mt-4 bg-red-500 text-white px-4 py-2 rounded">
-            Daten löschen
-          </button>
-        </div>
-      )}
-    </div>
-  );
+					<CustomButton text="Daten löschen" type="button" onClick={deleteUserData} styles="bg-red-500" />
+				</div>
+			)}
+		</div>
+	);
 }
