@@ -1,69 +1,44 @@
 import { Link } from "react-router-dom";
-import React, { useState, useEffect } from 'react';
+import { useContext } from "react";
+import { routesMap } from "../App";
+import { authContext } from "../context/AuthContext";
 
 const Navbar = () => {
-  const [userName, setUserName] = useState('');
+	// Benutzerdaten aus dem AuthContext holen
+	const { currentUser, logout } = useContext(authContext);
 
-  // useEffect, der beim Laden die Namen aus localStorage abruft und regelmäßig prüft
-  useEffect(() => {
-    // Funktion, um den gespeicherten Namen aus dem localStorage zu holen
-    const getUserNameFromLocalStorage = () => {
-      const storedName = localStorage.getItem('userName');
-      if (storedName) {
-        setUserName(storedName); // Benutzername setzen, wenn er im localStorage vorhanden ist
-      } else {
-        setUserName("")
-      }
-    };
+	// Funktion zum Ausloggen des Benutzers
+	const userLogout = () => {
+		logout();
+	};
 
-    // Beim ersten Laden die Daten abfragen
-    getUserNameFromLocalStorage();
+	return (
+		<nav className="fixed top-0 left-0 z-50 w-screen bg-green-800 text-white text-sm font-bold px-5 py-3 flex justify-between items-center">
+			<Link to="/" className="flex items-center gap-2 hover:underline">
+				<img width="30" src="/favicon.png" alt="Favicon" />
+				<h1 className="text-xl font-bold">Handicalc</h1>
+			</Link>
 
-    // useEffect wird erneut ausgeführt, wenn sich der userName im localStorage ändert
-    const interval = setInterval(getUserNameFromLocalStorage, 1000); // alle 1 Sekunde nach Änderungen suchen
-
-    // Aufräumen des Intervalls bei Unmount
-    return () => clearInterval(interval);
-
-  }, []); // Der Effekt läuft nur einmal, beim ersten Laden der Komponente
-
-  return (
-    <nav className="fixed top-0 left-0 z-50 w-screen bg-green-800 text-white p-4 flex justify-between items-center">
-      <Link to="/" className="flex items-center gap-2 hover:underline">
-        <img width="40" src="/favicon.png" alt="Favicon" />
-        <h1 className="text-xl font-bold">Handicalc</h1>
-      </Link>
-      <ul className="flex gap-4">
-        <li>
-          <Link to="/" className="hover:underline">
-            Home
-          </Link>
-        </li>
-        <li>
-          <Link to="/sd" className="hover:underline">
-            SD
-          </Link>
-        </li>
-        <li>
-          <Link to="/results" className="hover:underline">
-            Ergebnisse
-          </Link>
-        </li>
-        <li>
-          <Link to="/ega" className="hover:underline">
-            EGA
-          </Link>
-        </li>
-        <li>
-          <Link to="/whs" className="hover:underline">
-            WHS
-          </Link>
-        </li>
-        {/* Begrüßung in der Navbar */}
-        {userName && <li className="ml-10">👋 Hallo, {userName}!</li>}
-      </ul>
-    </nav>
-  );
+			<div className="flex items-center gap-7">
+				<ul className="flex gap-4">
+					{routesMap
+						.filter((r) => !!r.title && r.roles.includes(currentUser?.userRole)) // Nur zugelassene Routen anzeigen
+						.map((route, index) => (
+							<li key={index}>
+								<Link to={route.path} className="hover:underline">
+									{route.title}
+								</Link>
+							</li>
+						))}
+				</ul>
+				{currentUser && (
+					<button onClick={userLogout} className="flex flex-row gap-2 items-center px-2 py-1 rounded-lg bg-white/10 hover:bg-white/20 active:bg-red-900 active:text-white">
+						👋 Hi, {currentUser.userName}!<span className="text-red-500 hover:text-red-700 active:text-red-900 material-icons">logout</span>
+					</button>
+				)}
+			</div>
+		</nav>
+	);
 };
 
 export default Navbar;
