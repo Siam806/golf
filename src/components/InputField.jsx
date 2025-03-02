@@ -13,7 +13,7 @@ export default function InputField({ title, placeholder, type, required, default
 					))}
 				</select>
 			) : (
-				<input type={type ?? "text"} required={required ?? false} value={defaultValue} name={name} onChange={onChange} placeholder={placeholder} className="w-48 text-xs p-3 border rounded bg-gray-100 text-black" />
+				<input type={type ?? "text"} required={required ?? false} defaultValue={defaultValue} name={name} onChange={onChange} placeholder={placeholder} className="w-48 text-xs p-3 border rounded bg-gray-100 text-black" />
 			)}
 		</section>
 	);
