@@ -49,7 +49,7 @@ export const routesMap = [
 		title: "Ergebnisse",
 		element: <ResultsPage />,
 		public: false,
-		roles: availableRoles.slice(0, 3),
+		roles: availableRoles.slice(0, 2),
 	},
 	{
 		path: "/whs",
