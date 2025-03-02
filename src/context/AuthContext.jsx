@@ -17,7 +17,7 @@ export function AuthContextProvider({ children }) {
 		}
 	}, []);
 
-	const login = (userName, userRole, userEmail) => {
+	const signup = (userName, userRole, userEmail) => {
 		const knownUsers = JSON.parse(localStorage.users ?? "[]");
 		if (userName.trim() === "" || userRole === "" || userEmail.trim() === "") {
 			// Überprüfen, ob alle Felder ausgefüllt sind
@@ -36,16 +36,56 @@ export function AuthContextProvider({ children }) {
 		setCurrentUser({ userName, userRole, userEmail });
 	};
 
-	const logout = () => {
-		// Bekannte Benutzer aus dem localStorage holen
+	const login = (userEmail) => {
 		const knownUsers = JSON.parse(localStorage.users ?? "[]");
-		// Benutzer aus der Liste der bekannten Benutzer entfernen
-		localStorage.setItem("users", JSON.stringify(knownUsers.filter((user) => user.userEmail !== currentUser.userEmail)));
+		if (userEmail.trim() === "") {
+			// Überprüfen, ob eine E-Mail eingegeben wurde
+			alert("Bitte eine Email eingeben!");
+			return;
+		}
+
+		const user = knownUsers.find((user) => user.userEmail === userEmail);
+
+		if (!user) {
+			// Überprüfen, ob der Benutzer existiert
+			alert("Benutzer existiert nicht!");
+			return;
+		}
+
+		// Daten des aktuellen Benutzers speichern
+		localStorage.setItem("currentUser", JSON.stringify(user));
+
+		// Benutzer setzen
+		setCurrentUser(user);
+	};
+
+	const edit = (userName, userRole, userEmail, currEmail) => {
+		const knownUsers = JSON.parse(localStorage.users ?? "[]");
+		if (userName.trim() === "" || userRole === "" || userEmail.trim() === "") {
+			// Überprüfen, ob alle Felder ausgefüllt sind
+			alert("Bitte alle Felder ausfüllen!");
+			return;
+		} else if (knownUsers.find((user) => user.userEmail === userEmail && user.userEmail !== currEmail)) {
+			// Überprüfen, ob der Benutzer bereits existiert
+			alert("Benutzer existiert bereits!");
+			return;
+		}
+		// Benutzerdaten aktualisieren
+		const updatedUsers = knownUsers.map((user) => (user.userEmail === currEmail ? { userName, userRole, userEmail } : user));
+		// Benutzerdaten speichern
+		localStorage.setItem("users", JSON.stringify(updatedUsers));
+		// Daten des aktuellen Benutzers speichern
+		localStorage.setItem("currentUser", JSON.stringify({ userName, userRole, userEmail }));
+		// Benutzer setzen
+		setCurrentUser({ userName, userRole, userEmail });
+	};
+
+	const logout = () => {
 		// Benutzerdaten löschen
 		localStorage.removeItem("currentUser");
 		// Benutzer auf undefined setzen
 		setCurrentUser(undefined);
 	};
 
-	return <authContext.Provider value={{ currentUser, login, logout }}>{children}</authContext.Provider>;
+	return <authContext.Provider value={{ currentUser, signup, login, edit, logout }}>{children}</authContext.Provider>;
 }

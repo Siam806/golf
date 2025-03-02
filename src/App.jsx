@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Link } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import HomePage from "./pages/HomePage";
 import EGAPage from "./pages/EGAPage";
@@ -22,7 +22,7 @@ export const routesMap = [
 		path: "/",
 		title: "Home",
 		element: <HomePage />,
-		roles: availableRoles,
+		roles: [undefined, ...availableRoles], // Jeder Benutzer und ein nicht angemeldeter Benutzer kann die Startseite sehen
 	},
 	{
 		path: "/members",
@@ -80,9 +80,9 @@ export default function App() {
 		// Bekannte Benutzer aus dem localStorage holen
 		const knownUsers = JSON.parse(localStorage.users ?? "[]");
 		// E-Mails der bekannten Benutzer holen
-		const knownEmails = knownUsers.map((user) => user.email);
+		const knownEmails = knownUsers.map((user) => user.userEmail);
 		// Neue Benutzer filtern
-		const newUsers = mockData.filter((user) => !knownEmails.includes(user.email));
+		const newUsers = mockData.filter((user) => !knownEmails.includes(user.userEmail));
 		// Neue Benutzer in die Liste der bekannten Benutzer speichern
 		localStorage.setItem("users", JSON.stringify([...knownUsers, ...newUsers]));
 	}, []);
@@ -98,7 +98,17 @@ export default function App() {
 							{routesMap.map((route, index) => (
 								<Route key={index} path={route.path} element={<ProtectedRoute element={route.element} allowedRoles={route.roles} />} />
 							))}
-							<Route path="/unauthorized" element={<h1>404 - Seite nicht gefunden</h1>} />
+							<Route
+								path="/*"
+								element={
+									<h1>
+										404 - Seite nicht gefunden
+										<Link to="/" className="mt-4 block text-center text-blue-500 font-extrabold underline text-lg active:text-gre">
+											Home
+										</Link>
+									</h1>
+								}
+							/>
 						</Routes>
 					</div>
 				</main>
