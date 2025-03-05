@@ -72,6 +72,7 @@ export const routesMap = [
 		public: false,
 		roles: availableRoles.slice(0, 3),
 	},
+	
 ];
 
 export default function App() {
