@@ -12,6 +12,7 @@ import { mockData } from "./utils/mockData";
 import { AuthContextProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MembersPage from "./pages/MembersPage";
+import TestMailTo from "./pages/TestMailTo";
 
 // Rollen, die ein Benutzer haben kann
 export const availableRoles = ["Golfer", "Spielführer", "Sekretär"];
@@ -71,6 +72,12 @@ export const routesMap = [
 		element: <RoundDetailsPage />,
 		public: false,
 		roles: availableRoles.slice(0, 3),
+	},
+	{
+		path: "/mailtest",
+		title: "",
+		element: <TestMailTo />,
+		roles: [undefined, ...availableRoles],
 	},
 	
 ];
