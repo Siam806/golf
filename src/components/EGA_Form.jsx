@@ -29,11 +29,15 @@ function getEgaCategory(hcp) {
   return 6;
 }
 
-// "Round Half Up" wie im Python-Beispiel
+//rundet auf
 function roundHalfUp(value, decimals = 0) {
-  const factor = Math.pow(10, decimals);
-  return Math.floor(value * factor + 0.5) / factor;
-}
+    const factor = Math.pow(10, decimals);
+    // Vor-Rundung, um Floating-Fehler zu verringern
+    const scaled = (value * factor).toFixed(decimals + 2);
+    const numeric = parseFloat(scaled);
+    const floored = Math.floor(numeric + 0.5);
+    return floored / factor;
+  }
 
 // 18-Loch Playing Handicap
 function playingHandicap18(hcp, courseRating, slopeRating, par) {
@@ -43,6 +47,7 @@ function playingHandicap18(hcp, courseRating, slopeRating, par) {
     // Kat 1–5
     const raw = hcp * (slopeRating / 113) + (courseRating - par);
     return Math.round(roundHalfUp(raw));
+
   } else {
     // Kat 6
     // => hcp + (PHCP(36) - 36)
@@ -182,35 +187,26 @@ function calcNewEgaHandicap(oldHcp, stableford, cba = 0) {
 // ----- Hauptkomponente, die du in deinem Projekt verwenden kannst -----
 
 export default function EGAForm() {
-  const [handicap, setHandicap] = useState('32.5');
-  const [par, setPar] = useState('72');
-  const [courseRating, setCourseRating] = useState('72.3');
-  const [slopeRating, setSlopeRating] = useState('130');
-  const [cba, setCba] = useState('0');        // Falls du CBA manuell einstellen willst
-  const [isNineHoles, setIsNineHoles] = useState(false);
+    const [handicap, setHandicap] = useState('23.7');
+    const [par, setPar] = useState('35');
+    const [courseRating, setCourseRating] = useState('34.1');
+    const [slopeRating, setSlopeRating] = useState('115');
+    const [cba, setCba] = useState('0');        // Falls du CBA manuell einstellen willst
+    const [isNineHoles, setIsNineHoles] = useState(false);
 
   const navigate = useNavigate();
 
   // Beispiel-Daten für 18 Löcher, stroke index = "handicap"
   const generateTestHoles = () => [
-    { par: 3, handicap: 16, score: 5 },
+    { par: 3, handicap: 4, score: 5 },
+    { par: 4, handicap: 16, score: 6 },
     { par: 4, handicap: 1, score: 6 },
-    { par: 4, handicap: 10, score: 6 },
-    { par: 5, handicap: 7, score: 7 },
-    { par: 4, handicap: 13, score: 6 },
-    { par: 4, handicap: 4, score: 6 },
-    { par: 3, handicap: 17, score: 4 },
-    { par: 4, handicap: 2, score: 7 },
-    { par: 4, handicap: 11, score: 6 },
-    { par: 5, handicap: 8, score: 7 },
-    { par: 4, handicap: 14, score: 6 },
-    { par: 4, handicap: 5, score: 6 },
-    { par: 3, handicap: 18, score: 5 },
-    { par: 4, handicap: 3, score: 5 },
-    { par: 4, handicap: 12, score: 6 },
-    { par: 5, handicap: 9, score: 6 },
-    { par: 4, handicap: 15, score: 5 },
-    { par: 4, handicap: 6, score: 6 }
+    { par: 5, handicap: 10, score: 7 },
+    { par: 4, handicap: 7, score: 6 },
+    { par: 4, handicap: 13, score: 5 },
+    { par: 3, handicap: 5, score: 5 },
+    { par: 4, handicap: 17, score: 6 },
+    { par: 4, handicap: 2, score: 6 }
   ];
 
   const [holes, setHoles] = useState(generateTestHoles());
