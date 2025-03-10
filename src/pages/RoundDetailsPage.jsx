@@ -9,8 +9,15 @@ const RoundDetailsPage = () => {
 
   useEffect(() => {
     // Lade alle gespeicherten Runden aus dem localStorage
-    const savedRounds = JSON.parse(localStorage.getItem("rounds")) || [];
-    const foundRound = savedRounds.find(round => round.name === roundName);
+    const savedRounds = JSON.parse(localStorage.getItem("rounds")) || {};
+    const currentUser = JSON.parse(localStorage.getItem("currentUser")) || { 
+      userName: "testUser", 
+      userRole: "Golfer", 
+      userEmail: "test@t.de" 
+    };
+    
+    const userRounds = savedRounds[currentUser["userEmail"]];
+    const foundRound = userRounds.find(round => round.name === roundName);
     setRound(foundRound);
     setEditableRound(foundRound); // Setze die bearbeitbaren Daten
   }, [roundName]);
@@ -31,7 +38,7 @@ const RoundDetailsPage = () => {
       </div>
     );
   }
-
+  
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setEditableRound((prevRound) => ({
@@ -59,11 +66,18 @@ const RoundDetailsPage = () => {
     const updatedRound = { ...editableRound, sd: sdValue.toFixed(2) }; // Füge das neue SD hinzu
   
     // Speichern die Änderungen im localStorage
-    const savedRounds = JSON.parse(localStorage.getItem("rounds")) || [];
-    const updatedRounds = savedRounds.map((r) =>
+    const savedRounds = JSON.parse(localStorage.getItem("rounds")) || {};
+    const currentUser = JSON.parse(localStorage.getItem("currentUser")) || { 
+      userName: "testUser", 
+      userRole: "Golfer", 
+      userEmail: "test@t.de" 
+    };
+    
+    const updatedRounds = savedRounds[currentUser.userEmail].map((r) =>
       r.name === roundName ? updatedRound : r
     );
-    localStorage.setItem("rounds", JSON.stringify(updatedRounds));
+    savedRounds[currentUser.userEmail] = updatedRounds;
+    localStorage.setItem("rounds", JSON.stringify(savedRounds));
   
     alert("Änderungen gespeichert!");
   };

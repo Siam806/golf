@@ -6,12 +6,21 @@ const ResultsPage = () => {
 
   // Runden aus dem localStorage laden
   useEffect(() => {
-    const savedRounds = JSON.parse(localStorage.getItem("rounds")) || [];
-    const roundsKey = localStorage.getItem("userName")+"__"+localStorage.getItem("userEmail");
-    if (!(roundsKey in savedRounds)) {
-      savedRounds[roundsKey] = [];
+    const savedRounds = JSON.parse(localStorage.getItem("rounds")) || {};
+    const currentUser = JSON.parse(localStorage.getItem("currentUser")) || { 
+      userName: "testUser", 
+      userRole: "Golfer", 
+      userEmail: "test@t.de" 
+    };
+    
+    if (currentUser.userRole == "Spielführer") {
+      allRounds = []
     }
-    setRounds(savedRounds[roundsKey]);
+    if (!(currentUser["userEmail"] in savedRounds)) {
+      savedRounds[currentUser["userEmail"]] = [];
+    }
+    const userRounds = savedRounds[currentUser["userEmail"]];
+    setRounds(userRounds);
   }, []);
 
   const handleDelete = (roundName) => {
