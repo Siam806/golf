@@ -66,7 +66,7 @@ export const routesMap = [
 		roles: availableRoles.slice(0, 3),
 	},
 	{
-		path: "/round/:roundName",
+		path: "/round",
 		title: "",
 		element: <RoundDetailsPage />,
 		public: false,

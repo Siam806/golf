@@ -1,29 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 
 const RoundDetailsPage = () => {
-  const { roundName } = useParams(); // Hole den Namen der Runde aus der URL
+  const [searchParams] = useSearchParams();
+  const roundName = searchParams.get("roundName");
+  const roundEmail = searchParams.get("roundEmail");
   const [round, setRound] = useState(null);
   const [editableRound, setEditableRound] = useState(null); // Für die bearbeitbaren Daten
   const [sd, setSD] = useState(null); // Score Differential
 
   useEffect(() => {
-    // Lade alle gespeicherten Runden aus dem localStorage
-    const savedRounds = JSON.parse(localStorage.getItem("rounds")) || {};
-    const currentUser = JSON.parse(localStorage.getItem("currentUser")) || { 
-      userName: "testUser", 
-      userRole: "Golfer", 
-      userEmail: "test@t.de" 
-    };
-    
-    const userRounds = savedRounds[currentUser["userEmail"]];
-    const foundRound = userRounds.find(round => round.name === roundName);
+    console.log("hi")
+    console.log(roundName, roundEmail);
+    const savedRounds = JSON.parse(localStorage.getItem("rounds")) || [];    
+    const foundRound = savedRounds.find(round => round.name === roundName && round.email === roundEmail);
     setRound(foundRound);
-    setEditableRound(foundRound); // Setze die bearbeitbaren Daten
-  }, [roundName]);
+    setEditableRound(foundRound);
+  }, [roundName, roundEmail]); // Hier beide Parameter beachten!
 
   useEffect(() => {
-    // Berechne das Score Differential immer wenn sich die Runde oder die Eingabedaten ändern
     if (editableRound && editableRound.slopeRating && editableRound.courseRating && editableRound.par) {
       const totalScore = editableRound.scores.reduce((sum, score) => sum + (parseInt(score) || 0), 0);
       const sdValue = ((totalScore - editableRound.courseRating) / editableRound.slopeRating) * 113;
@@ -38,7 +33,7 @@ const RoundDetailsPage = () => {
       </div>
     );
   }
-  
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setEditableRound((prevRound) => ({
@@ -57,31 +52,19 @@ const RoundDetailsPage = () => {
   };
 
   const saveChanges = () => {
-    // Berechne das neue Score Differential
-    const totalScore = editableRound.scores.reduce(
-      (sum, score) => sum + (parseInt(score) || 0),
-      0
-    );
+    const totalScore = editableRound.scores.reduce((sum, score) => sum + (parseInt(score) || 0), 0);
     const sdValue = ((totalScore - editableRound.courseRating) / editableRound.slopeRating) * 113;
-    const updatedRound = { ...editableRound, sd: sdValue.toFixed(2) }; // Füge das neue SD hinzu
-  
-    // Speichern die Änderungen im localStorage
+    const updatedRound = { ...editableRound, sd: sdValue.toFixed(2) };
+
     const savedRounds = JSON.parse(localStorage.getItem("rounds")) || {};
-    const currentUser = JSON.parse(localStorage.getItem("currentUser")) || { 
-      userName: "testUser", 
-      userRole: "Golfer", 
-      userEmail: "test@t.de" 
-    };
     
-    const updatedRounds = savedRounds[currentUser.userEmail].map((r) =>
-      r.name === roundName ? updatedRound : r
+    const updatedRounds = savedRounds.map((r) =>
+      r.name === roundName && r.email === roundEmail ? updatedRound : r
     );
-    savedRounds[currentUser.userEmail] = updatedRounds;
-    localStorage.setItem("rounds", JSON.stringify(savedRounds));
+    localStorage.setItem("rounds", JSON.stringify(updatedRounds));
   
     alert("Änderungen gespeichert!");
   };
-  
 
   return (
     <div className="bg-gray-900 text-white p-6 rounded-lg shadow-xl max-w-2xl mx-auto mt-6">

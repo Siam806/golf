@@ -6,7 +6,7 @@ const ResultsPage = () => {
 
   // Runden aus dem localStorage laden
   useEffect(() => {
-    const savedRounds = JSON.parse(localStorage.getItem("rounds")) || {};
+    const savedRounds = JSON.parse(localStorage.getItem("rounds")) || [];
     const currentUser = JSON.parse(localStorage.getItem("currentUser")) || { 
       userName: "testUser", 
       userRole: "Golfer", 
@@ -14,13 +14,11 @@ const ResultsPage = () => {
     };
     
     if (currentUser.userRole == "Spielführer") {
-      allRounds = []
+      setRounds(savedRounds);
+    } else {
+        const userRounds = savedRounds.filter((round) => round.email == currentUser.userEmail);
+        setRounds(userRounds);
     }
-    if (!(currentUser["userEmail"] in savedRounds)) {
-      savedRounds[currentUser["userEmail"]] = [];
-    }
-    const userRounds = savedRounds[currentUser["userEmail"]];
-    setRounds(userRounds);
   }, []);
 
   const handleDelete = (roundName) => {
@@ -52,13 +50,13 @@ const ResultsPage = () => {
               </div>
               <div className="flex gap-4">
                 <Link
-                  to={`/round/${round.name}`}
+                  to={`/round?roundName=${round.name}&roundEmail=${round.email}`}
                   className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700"
                 >
                   Details
                 </Link>
                 <button
-                  onClick={() => handleDelete(round.name)}
+                  onClick={() => handleDelete(round.name, round.email)}
                   className="bg-red-600 text-white p-2 rounded-lg hover:bg-red-700"
                 >
                   Löschen
