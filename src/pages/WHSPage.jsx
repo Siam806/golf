@@ -7,12 +7,14 @@ const WHSPage = () => {
 
   // Runden aus localStorage laden
   useEffect(() => {
-    const savedRounds = JSON.parse(localStorage.getItem('rounds')) || [];
-    const roundsKey = localStorage.getItem("userName")+"__"+localStorage.getItem("userEmail");
-    if (!(roundsKey in savedRounds)) {
-      savedRounds[roundsKey] = [];
-    }
-    setRounds(savedRounds[roundsKey]);
+    const savedRounds = JSON.parse(localStorage.getItem("rounds")) || [];
+    const currentUser = JSON.parse(localStorage.getItem("currentUser")) || { 
+      userName: "testUser", 
+      userRole: "Golfer", 
+      userEmail: "test@t.de" 
+    };
+    const userRounds = savedRounds.filter((round) => round.email == currentUser.userEmail);
+    setRounds(userRounds);
   }, []);
 
   // Funktion zum Berechnen des WHS Handicap
