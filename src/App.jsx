@@ -3,6 +3,7 @@ import Navbar from "./components/Navbar";
 import HomePage from "./pages/HomePage";
 import EGAPage from "./pages/EGAPage";
 import SDPage from "./pages/SDPage";
+import HCPtoVorgabePage from "./pages/HCPtoVorgabePage";
 import CalculatedPage from "./pages/CalculatedPage";
 import ResultsPage from "./pages/ResultsPage";
 import RoundDetailsPage from "./pages/RoundDetailsPage";
@@ -72,7 +73,16 @@ export const routesMap = [
 		public: false,
 		roles: availableRoles.slice(0, 3),
 	},
+	{
+		path: "/hcptovorgabe",
+		title: "Spielvorgabe",
+		element: <HCPtoVorgabePage />,
+		public: false,
+		roles: availableRoles[2],
+	},
 	
+
+
 ];
 
 export default function App() {

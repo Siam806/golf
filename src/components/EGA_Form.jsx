@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+
 // Beispielhafter InputField-Stub.
 // Nimm entweder deinen bestehenden InputField-Komponenten-Import
 // oder ersetze diesen Code durch deine Version
