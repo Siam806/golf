@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { authContext } from "../context/AuthContext";
 import { useContext } from "react";
 
+
 // Beispielhafter InputField-Stub.
 // Nimm entweder deinen bestehenden InputField-Komponenten-Import
 // oder ersetze diesen Code durch deine Version
