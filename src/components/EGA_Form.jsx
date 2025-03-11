@@ -296,15 +296,14 @@ export default function EGAForm() {
   const saveRound = () => {
     // Überprüfen, ob der Name der Runde bereits existiert
 
-    const usrName = localStorage.getItem("userName");
-    const usrMail = localStorage.getItem("userEmail");
-    const savedRounds = JSON.parse(localStorage.getItem("rounds")) || {};
-    const roundsKey = usrName+"__"+usrMail;
-    if (!(roundsKey in savedRounds)) {
-      savedRounds[roundsKey] = [];
-    }
-    const userRounds = savedRounds[roundsKey];
-    const isDuplicate = userRounds.some((round) => round.name === roundName);
+    let savedRounds = JSON.parse(localStorage.getItem("rounds")) || [];
+    const currentUser = JSON.parse(localStorage.getItem("currentUser")) || { 
+      userName: "testUser", 
+      userRole: "Golfer", 
+      userEmail: "test@t.de",
+      userHandicap: 54,
+    };
+    const isDuplicate = savedRounds.some((round) => round.name === roundName && round.email === currentUser.email);
     window.saveRound = saveRound;
 
     if (isDuplicate) {
@@ -314,6 +313,7 @@ export default function EGAForm() {
   
     // Runde speichern, wenn der Name einzigartig ist
     const round = {
+      email: currentUser.userEmail,
       name: roundName || `Runde_${userRounds.length + 1}`, // Standardname falls keiner eingegeben wird
       slopeRating,
       courseRating,
