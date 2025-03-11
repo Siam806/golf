@@ -10,13 +10,21 @@ const RoundDetailsPage = () => {
   const [sd, setSD] = useState(null); // Score Differential
 
   useEffect(() => {
-    console.log("hi")
     console.log(roundName, roundEmail);
-    const savedRounds = JSON.parse(localStorage.getItem("rounds")) || [];    
-    const foundRound = savedRounds.find(round => round.name === roundName && round.email === roundEmail);
+    
+    // Alle Nutzer aus dem Local Storage holen
+    const users = JSON.parse(localStorage.getItem("users")) || [];
+  
+    // Den Benutzer finden, zu dem die Runde gehört
+    const userData = users.find(user => user.userEmail === roundEmail);
+  
+    // Falls der Benutzer existiert, nach der Runde suchen
+    const foundRound = userData?.rounds?.find(round => round.name === roundName) || null;
+  
+    // Gefundene Runde im State setzen
     setRound(foundRound);
     setEditableRound(foundRound);
-  }, [roundName, roundEmail]); // Hier beide Parameter beachten!
+  }, [roundName, roundEmail]);
 
   useEffect(() => {
     if (editableRound && editableRound.slopeRating && editableRound.courseRating && editableRound.par) {
@@ -55,16 +63,38 @@ const RoundDetailsPage = () => {
     const totalScore = editableRound.scores.reduce((sum, score) => sum + (parseInt(score) || 0), 0);
     const sdValue = ((totalScore - editableRound.courseRating) / editableRound.slopeRating) * 113;
     const updatedRound = { ...editableRound, sd: sdValue.toFixed(2) };
-
-    const savedRounds = JSON.parse(localStorage.getItem("rounds")) || {};
-    
-    const updatedRounds = savedRounds.map((r) =>
-      r.name === roundName && r.email === roundEmail ? updatedRound : r
+  
+    // Nutzer-Daten aus dem Local Storage holen
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+  
+    // Den Benutzer finden
+    let userIndex = users.findIndex((user) => user.userEmail === roundEmail);
+  
+    if (userIndex === -1) {
+      alert("Benutzer nicht gefunden!");
+      return;
+    }
+  
+    // Sicherstellen, dass der Benutzer Runden hat
+    let userData = users[userIndex];
+    if (!userData.rounds) {
+      userData.rounds = [];
+    }
+  
+    // Die Runde innerhalb des Benutzers aktualisieren
+    userData.rounds = userData.rounds.map((r) =>
+      r.name === roundName ? updatedRound : r
     );
-    localStorage.setItem("rounds", JSON.stringify(updatedRounds));
+  
+    // Das aktualisierte Benutzer-Objekt in `users` speichern
+    users[userIndex] = userData;
+  
+    // Aktualisierte `users`-Daten zurück in den Local Storage speichern
+    localStorage.setItem("users", JSON.stringify(users));
   
     alert("Änderungen gespeichert!");
   };
+  
 
   return (
     <div className="bg-gray-900 text-white p-6 rounded-lg shadow-xl max-w-2xl mx-auto mt-6">

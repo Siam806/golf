@@ -1,12 +1,16 @@
 import React, { useState } from "react";
+import { authContext } from "../context/AuthContext";
+import { useContext } from "react";
+
 
 const SDForm = () => {
-  const [slopeRating, setSlopeRating] = useState("");
-  const [courseRating, setCourseRating] = useState("");
-  const [par, setPar] = useState("");
-  const [scores, setScores] = useState(Array(18).fill("")); // 18 Löcher
+  const [slopeRating, setSlopeRating] = useState("113");
+  const [courseRating, setCourseRating] = useState("72");
+  const [par, setPar] = useState("70.9");
+  const [scores, setScores] = useState(Array(18).fill("6")); // 18 Löcher
   const [sd, setSD] = useState(null); // Score Differential
   const [roundName, setRoundName] = useState(""); // Name der Runde
+  const { currentUser } = useContext(authContext);
 
   const handleScoreChange = (index, value) => {
     const newScores = [...scores];
@@ -25,26 +29,37 @@ const SDForm = () => {
   };
 
   const saveRound = () => {
-    // Überprüfen, ob der Name der Runde bereits existiert
-    let savedRounds = JSON.parse(localStorage.getItem("rounds")) || [];
-    const currentUser = JSON.parse(localStorage.getItem("currentUser")) || { 
-      userName: "testUser", 
-      userRole: "Golfer", 
-      userEmail: "test@t.de",
-      userHandicap: 54,
-    };
+    // User-Daten aus dem Local Storage holen
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+  
+    // Den aktuellen Nutzer finden
+    let userIndex = users.findIndex((user) => user.userEmail === currentUser.userEmail);
     
-    const isDuplicate = savedRounds.some((round) => round.name === roundName && round.email === currentUser.email);
+    if (userIndex === -1) {
+      alert("Benutzer nicht gefunden!");
+      return;
+    }
+  
+    // Nutzer-Objekt holen
+    let userData = users[userIndex];
+  
+    // Sicherstellen, dass 'rounds' existiert
+    if (!userData.rounds) {
+      userData.rounds = [];
+    }
+  
+    // Überprüfen, ob der Name bereits existiert
+    const isDuplicate = userData.rounds.some((round) => round.name === roundName);
   
     if (isDuplicate) {
       alert("Dieser Name ist bereits vergeben! Bitte wähle einen anderen.");
       return;
     }
   
-    // Runde speichern, wenn der Name einzigartig ist
+    // Neue Runde erstellen
     const round = {
-      email: currentUser.userEmail,
-      name: roundName || `Runde_${savedRounds.length + 1}`, // Standardname falls keiner eingegeben wird
+      userEmail: currentUser.userEmail,
+      name: roundName || `Runde_${userData.rounds.length + 1}`, // Falls kein Name eingegeben wurde
       slopeRating,
       courseRating,
       par,
@@ -52,11 +67,18 @@ const SDForm = () => {
       sd,
     };
   
-    savedRounds.push(round);
-    localStorage.setItem("rounds", JSON.stringify(savedRounds));
-
+    // Runde hinzufügen
+    userData.rounds.push(round);
+  
+    // Nutzer-Daten im `users`-Array aktualisieren
+    users[userIndex] = userData;
+  
+    // Geändertes Array zurück in den Local Storage speichern
+    localStorage.setItem("users", JSON.stringify(users));
+  
     alert("Runde gespeichert!");
   };
+  
   
   return (
     <div className="bg-gray-900 text-white p-6 rounded-lg shadow-xl max-w-2xl mx-auto mt-6">

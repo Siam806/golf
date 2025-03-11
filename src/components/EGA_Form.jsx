@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { authContext } from "../context/AuthContext";
+import { useContext } from "react";
 
 // Beispielhafter InputField-Stub.
 // Nimm entweder deinen bestehenden InputField-Komponenten-Import
@@ -192,6 +194,7 @@ export default function EGAForm() {
     const [cba, setCba] = useState('0');        
     const [isNineHoles, setIsNineHoles] = useState(false);
     const [roundName, setRoundName] = useState(""); // Name der Runde
+    const { currentUser } = useContext(authContext);
 
   const navigate = useNavigate();
 
@@ -294,27 +297,36 @@ export default function EGAForm() {
   };
 
   const saveRound = () => {
-    // Überprüfen, ob der Name der Runde bereits existiert
-
-    let savedRounds = JSON.parse(localStorage.getItem("rounds")) || [];
-    const currentUser = JSON.parse(localStorage.getItem("currentUser")) || { 
-      userName: "testUser", 
-      userRole: "Golfer", 
-      userEmail: "test@t.de",
-      userHandicap: 54,
-    };
-    const isDuplicate = savedRounds.some((round) => round.name === roundName && round.email === currentUser.email);
-    window.saveRound = saveRound;
-
+    // Alle Nutzer aus dem Local Storage holen
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+  
+    // Den aktuellen Nutzer in der Liste finden
+    let userIndex = users.findIndex(user => user.userEmail === currentUser.userEmail);
+    
+    if (userIndex === -1) {
+      alert("Benutzer nicht gefunden!");
+      return;
+    }
+  
+    let userData = users[userIndex];
+  
+    // Sicherstellen, dass der Nutzer ein `rounds`-Array hat
+    if (!userData.rounds) {
+      userData.rounds = [];
+    }
+  
+    // Überprüfen, ob der Rundenname bereits existiert
+    const isDuplicate = userData.rounds.some(round => round.name === roundName);
+  
     if (isDuplicate) {
       alert("Dieser Name ist bereits vergeben! Bitte wähle einen anderen.");
       return;
     }
   
-    // Runde speichern, wenn der Name einzigartig ist
+    // Neue Runde erstellen
     const round = {
-      email: currentUser.userEmail,
-      name: roundName || `Runde_${userRounds.length + 1}`, // Standardname falls keiner eingegeben wird
+      userEmail: currentUser.userEmail,
+      name: roundName || `Runde_${userData.rounds.length + 1}`, // Standardname, falls keiner eingegeben wird
       slopeRating,
       courseRating,
       par,
@@ -322,12 +334,17 @@ export default function EGAForm() {
       SD,
     };
   
-    savedRounds.push(round);
-    localStorage.setItem("rounds", JSON.stringify(savedRounds));
+    // Runde zum Nutzer hinzufügen
+    userData.rounds.push(round);
+  
+    // Aktualisierte Nutzerdaten zurückspeichern
+    users[userIndex] = userData;
+    localStorage.setItem("users", JSON.stringify(users));
   
     alert("Runde gespeichert!");
     console.log(round);
   };
+  
   
   
   const calculateSD = () => {

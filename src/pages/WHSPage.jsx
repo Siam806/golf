@@ -1,32 +1,22 @@
 import React, { useState, useEffect } from 'react';
+import { authContext } from "../context/AuthContext";
+import { useContext } from "react";
 
 const WHSPage = () => {
   const [rounds, setRounds] = useState([]); // Zum Speichern der Runden aus localStorage
   const [whsHandicap, setWHSHandicap] = useState(null); // Das berechnete WHS Handicap
   const [bestRounds, setBestRounds] = useState([]); // Die besten Runden, die für das Handicap verwendet werden
+  const { currentUser } = useContext(authContext);
 
   // Runden aus localStorage laden
   useEffect(() => {
-    const savedRounds = JSON.parse(localStorage.getItem("rounds")) || [];
-    const currentUser = JSON.parse(localStorage.getItem("currentUser")) || { 
-      userName: "testUser", 
-      userRole: "Golfer", 
-      userEmail: "test@t.de",
-      userHandicap: 54,
-    };
-    const userRounds = savedRounds.filter((round) => round.email == currentUser.userEmail);
+    const users = JSON.parse(localStorage.getItem("users")) || [];
+    const userRounds = users.find(user => user.userEmail === currentUser.userEmail).rounds;
     setRounds(userRounds);
   }, []);
 
   // Funktion zum Berechnen des WHS Handicap
   const calculateWHS = () => {
-    let currentUser = JSON.parse(localStorage.getItem("currentUser")) || { 
-      userName: "testUser", 
-      userRole: "Golfer", 
-      userEmail: "test@t.de",
-      userHandicap: 54,
-    };
-
     if (rounds.length === 0) {
       alert('Keine Runden gespeichert!');
       return;
@@ -62,11 +52,18 @@ const WHSPage = () => {
 
     // Durchschnitt der besten Runden berechnen
     const avgBestSD = sortedRounds.reduce((sum, round) => sum + parseFloat(round.sd), 0) / sortedRounds.length;
+    const newHandicap = avgBestSD.toFixed(2);
 
     // WHS Handicap berechnen (wird jetzt nur durch SD berechnet)
-    currentUser.userHandicap = avgBestSD.toFixed(2);
-    localStorage.setItem("currentUser", JSON.stringify(currentUser))
-    setWHSHandicap(avgBestSD.toFixed(2)); // Ergebnis anzeigen
+    currentUser.userHandicap = newHandicap;
+    localStorage.setItem("currentUser", JSON.stringify(currentUser));
+
+    // Handicap überschreiben in User Liste
+    localStorage.setItem("users", JSON.stringify((JSON.parse(localStorage.getItem("users")) ?? []).map(
+      user => user.email === currentUser.email ? { ...user, userHandicap: newHandicap } : user)
+    ));
+
+    setWHSHandicap(newHandicap); // Ergebnis anzeigen
   };
 
   return (
