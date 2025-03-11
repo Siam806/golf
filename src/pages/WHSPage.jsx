@@ -11,7 +11,8 @@ const WHSPage = () => {
     const currentUser = JSON.parse(localStorage.getItem("currentUser")) || { 
       userName: "testUser", 
       userRole: "Golfer", 
-      userEmail: "test@t.de" 
+      userEmail: "test@t.de",
+      userHandicap: 54,
     };
     const userRounds = savedRounds.filter((round) => round.email == currentUser.userEmail);
     setRounds(userRounds);
@@ -19,6 +20,13 @@ const WHSPage = () => {
 
   // Funktion zum Berechnen des WHS Handicap
   const calculateWHS = () => {
+    let currentUser = JSON.parse(localStorage.getItem("currentUser")) || { 
+      userName: "testUser", 
+      userRole: "Golfer", 
+      userEmail: "test@t.de",
+      userHandicap: 54,
+    };
+
     if (rounds.length === 0) {
       alert('Keine Runden gespeichert!');
       return;
@@ -56,6 +64,8 @@ const WHSPage = () => {
     const avgBestSD = sortedRounds.reduce((sum, round) => sum + parseFloat(round.sd), 0) / sortedRounds.length;
 
     // WHS Handicap berechnen (wird jetzt nur durch SD berechnet)
+    currentUser.userHandicap = avgBestSD.toFixed(2);
+    localStorage.setItem("currentUser", JSON.stringify(currentUser))
     setWHSHandicap(avgBestSD.toFixed(2)); // Ergebnis anzeigen
   };
 

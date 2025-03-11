@@ -30,7 +30,8 @@ const SDForm = () => {
     const currentUser = JSON.parse(localStorage.getItem("currentUser")) || { 
       userName: "testUser", 
       userRole: "Golfer", 
-      userEmail: "test@t.de" 
+      userEmail: "test@t.de",
+      userHandicap: 54,
     };
     
     const isDuplicate = savedRounds.some((round) => round.name === roundName && round.email === currentUser.email);

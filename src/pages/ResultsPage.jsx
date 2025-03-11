@@ -10,7 +10,8 @@ const ResultsPage = () => {
     const currentUser = JSON.parse(localStorage.getItem("currentUser")) || { 
       userName: "testUser", 
       userRole: "Golfer", 
-      userEmail: "test@t.de" 
+      userEmail: "test@t.de",
+      userHandicap: 54,
     };
     
     if (currentUser.userRole == "Spielführer") {
