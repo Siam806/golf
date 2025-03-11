@@ -322,7 +322,7 @@ export default function EGAForm() {
       SD,
     };
   
-    userRounds.push(round);
+    savedRounds.push(round);
     localStorage.setItem("rounds", JSON.stringify(savedRounds));
   
     alert("Runde gespeichert!");
