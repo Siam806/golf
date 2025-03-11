@@ -293,11 +293,13 @@ export default function EGAForm() {
     navigate('/calculated', { state: { result: finalHcp, scoreDifferential: SD, } });
   };
 
-
   const saveRound = () => {
     // Überprüfen, ob der Name der Runde bereits existiert
+
+    const usrName = localStorage.getItem("userName");
+    const usrMail = localStorage.getItem("userEmail");
     const savedRounds = JSON.parse(localStorage.getItem("rounds")) || {};
-    const roundsKey = localStorage.getItem("userName")+"__"+localStorage.getItem("userEmail");
+    const roundsKey = usrName+"__"+usrMail;
     if (!(roundsKey in savedRounds)) {
       savedRounds[roundsKey] = [];
     }
@@ -327,6 +329,7 @@ export default function EGAForm() {
     console.log(round);
   };
   
+  
   const calculateSD = () => {
     const totalholes = holes.reduce((sum, score) => sum + (parseInt(score) || 0), 0);
     if (slopeRating && courseRating && par) {
@@ -337,7 +340,6 @@ export default function EGAForm() {
     }
   };
   const SD = calculateSD();
-
 
   return (
     <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto p-6 space-y-6 lg:space-y-0 lg:space-x-8">
@@ -393,17 +395,11 @@ export default function EGAForm() {
 
         <button
           className="bg-green-600 px-6 py-2 rounded-lg text-white font-bold hover:bg-green-700 transition"
-          onClick={() => {calculateHandicap(); calculateSD()}}
+          onClick={() => {calculateHandicap(); calculateSD(), saveRound()}}
         >
-          BERECHNEN
+          BERECHNEN & Speichern
         </button>
-        <button
-          className="bg-green-600 px-6 py-2 rounded-lg text-white font-bold hover:bg-green-700 transition"
-          onClick={() => {calculateHandicap(); calculateSD(); saveRound()}}
-        >
-          Runde speichern
-        </button>
-      </div>
+     </div>
     </div>
   );
 }
