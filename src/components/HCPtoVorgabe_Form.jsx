@@ -52,7 +52,7 @@ export default function HCPtoVorgabe_Form() {
           className="bg-green-600 px-6 py-2 rounded-lg text-white font-bold hover:bg-green-700 transition"
           onClick={() => {calculation()}}
         >
-          BERECHNEN & Speichern
+          BERECHNEN
         </button>
         {result !== null && (
          <div className="mt-2 p-2 bg-gray-700 text-white">
