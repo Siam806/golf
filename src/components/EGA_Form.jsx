@@ -65,14 +65,14 @@ function playingHandicap9(hcp, courseRating9, slopeRating9, par9) {
   if (category < 6) {
     // Kat 1–5
     // hcp/2 + CR - Par + (hcp*(slope/113))/2 etc. – hier etwas vereinfacht
-    const raw = (hcp * (slopeRating9 / 113)) / 2 + (courseRating9 - par9);
+    const raw = (hcp * (slopeRating9 / 113)) + (courseRating9 - par9);
     return Math.round(roundHalfUp(raw));
   } else {
     // Kat 6
     // => (hcp/2) + (PHCP(36,9L) - 18)
     //   PHCP(36,9L) ~ (36*(Slope/113)/2) + (CR - Par9)
-    const diff36_9 = ((36 * (slopeRating9 / 113)) / 2 + (courseRating9 - par9)) - 18;
-    const raw = (hcp / 2) + diff36_9;
+    const diff36_9 = ((36 * (slopeRating9 / 113)) + (courseRating9 - par9)) - 36;
+    const raw = (hcp) + diff36_9;
     return Math.round(roundHalfUp(raw));
   }
 }
@@ -174,7 +174,6 @@ function calcNewEgaHandicap(oldHcp, stableford, cba = 0) {
   if (stableford < pufferMin) {
     let diff = pufferMin - stableford;
     // Im echten EGA max +0.1 pro Runde in Kat1–4.
-    // Hier (wie dein Python) linear +0.1 pro Punkt.
     for (let i = 0; i < diff; i++) {
       newHcp += 0.1;
     }
@@ -184,32 +183,46 @@ function calcNewEgaHandicap(oldHcp, stableford, cba = 0) {
   return newHcp;
 }
 
-// ----- Hauptkomponente, die du in deinem Projekt verwenden kannst -----
 
 export default function EGAForm() {
     const [handicap, setHandicap] = useState('23.7');
     const [par, setPar] = useState('35');
     const [courseRating, setCourseRating] = useState('34.1');
     const [slopeRating, setSlopeRating] = useState('115');
-    const [cba, setCba] = useState('0');        // Falls du CBA manuell einstellen willst
+    const [cba, setCba] = useState('0');        
     const [isNineHoles, setIsNineHoles] = useState(false);
+    const [roundName, setRoundName] = useState(""); // Name der Runde
 
   const navigate = useNavigate();
 
+
   // Beispiel-Daten für 18 Löcher, stroke index = "handicap"
   const generateTestHoles = () => [
-    { par: 3, handicap: 4, score: 5 },
-    { par: 4, handicap: 16, score: 6 },
-    { par: 4, handicap: 1, score: 6 },
-    { par: 5, handicap: 10, score: 7 },
+    { par: 3, handicap: 4, score: 4 },
+    { par: 4, handicap: 16, score: 5 },
+    { par: 4, handicap: 1, score: 5 },
+    { par: 5, handicap: 10, score: 6 },
     { par: 4, handicap: 7, score: 6 },
     { par: 4, handicap: 13, score: 5 },
-    { par: 3, handicap: 5, score: 5 },
-    { par: 4, handicap: 17, score: 6 },
-    { par: 4, handicap: 2, score: 6 }
+    { par: 3, handicap: 5, score: 6 },
+    { par: 4, handicap: 17, score: 9 },
+    { par: 4, handicap: 2, score: 5 },
+    { par: 5, handicap: 11, score: 5 },
+    { par: 4, handicap: 8, score: 6 },
+    { par: 4, handicap: 14, score: 6 },
+    { par: 3, handicap: 6, score: 5 },
+    { par: 4, handicap: 18, score: 6 },
+    { par: 4, handicap: 3, score: 6 },
+    { par: 5, handicap: 12, score: 6 },
+    { par: 4, handicap: 9, score: 5 },
+    { par: 4, handicap: 15, score: 6 }
+
   ];
 
-  const [holes, setHoles] = useState(generateTestHoles());
+  const [holes, setHoles] = useState(
+    /*Array.from({ length: 18 }, () => ({ par: "", handicap: "", score: "" })*/
+    
+    generateTestHoles());
 
   const holeCount = isNineHoles ? 9 : 18;
 
@@ -250,7 +263,7 @@ export default function EGAForm() {
     let phcp = 0;
     if (isNineHoles) {
       // z.B. halbes Par weitergeben -> parValue / 2
-      phcp = playingHandicap9(oldHcp, courseRatingValue, slopeRatingValue, parValue / 2);
+      phcp = playingHandicap9(oldHcp, courseRatingValue, slopeRatingValue, parValue);
     } else {
       phcp = playingHandicap18(oldHcp, courseRatingValue, slopeRatingValue, parValue);
     }
@@ -273,9 +286,60 @@ export default function EGAForm() {
     newHcp = Math.min(54, Math.max(-54, newHcp));
     const finalHcp = roundHalfUp(newHcp, 1);
 
+    //variable für Weiterleitung definieren
+    const SD = calculateSD();
+
     // Weiterleiten (oder einfach alert)
-    navigate('/calculated', { state: { result: finalHcp } });
+    navigate('/calculated', { state: { result: finalHcp, scoreDifferential: SD, } });
   };
+
+  const saveRound = () => {
+    // Überprüfen, ob der Name der Runde bereits existiert
+
+    const usrName = localStorage.getItem("userName");
+    const usrMail = localStorage.getItem("userEmail");
+    const savedRounds = JSON.parse(localStorage.getItem("rounds")) || {};
+    const roundsKey = usrName+"__"+usrMail;
+    if (!(roundsKey in savedRounds)) {
+      savedRounds[roundsKey] = [];
+    }
+    const userRounds = savedRounds[roundsKey];
+    const isDuplicate = userRounds.some((round) => round.name === roundName);
+    window.saveRound = saveRound;
+
+    if (isDuplicate) {
+      alert("Dieser Name ist bereits vergeben! Bitte wähle einen anderen.");
+      return;
+    }
+  
+    // Runde speichern, wenn der Name einzigartig ist
+    const round = {
+      name: roundName || `Runde_${userRounds.length + 1}`, // Standardname falls keiner eingegeben wird
+      slopeRating,
+      courseRating,
+      par,
+      holes,
+      SD,
+    };
+  
+    userRounds.push(round);
+    localStorage.setItem("rounds", JSON.stringify(savedRounds));
+  
+    alert("Runde gespeichert!");
+    console.log(round);
+  };
+  
+  
+  const calculateSD = () => {
+    const totalholes = holes.reduce((sum, score) => sum + (parseInt(score) || 0), 0);
+    if (slopeRating && courseRating && par) {
+      const sdValue = ((totalholes - courseRating) / slopeRating) * 113;
+      return sdValue.toFixed(2); // Direkt zurückgeben statt `setSD` setSD(sdVal..)
+    } else {
+      alert("Bitte alle Werte eingeben!");
+    }
+  };
+  const SD = calculateSD();
 
   return (
     <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto p-6 space-y-6 lg:space-y-0 lg:space-x-8">
@@ -285,9 +349,10 @@ export default function EGAForm() {
         <InputField title="PAR des Golfplatzes" value={par} onChange={setPar} />
         <InputField title="Course Rating" value={courseRating} onChange={setCourseRating} />
         <InputField title="Slope Rating" value={slopeRating} onChange={setSlopeRating} />
+        <InputField title="Name der Runde" type="text" value={roundName} onChange={(setRoundName)} placeholder="Gib der Runde einen Namen" />
 
-        {/* Optional: CBA-Feld */}
-        <InputField title="CBA (optional)" value={cba} onChange={setCba} />
+        {/* Optional: CBA-Feld}
+        <InputField title="CBA (optional)" value={cba} onChange={setCba} />*/}
 
         <button 
           className="bg-blue-600 px-4 py-2 rounded-lg text-white font-bold hover:bg-blue-700 transition"
@@ -330,11 +395,11 @@ export default function EGAForm() {
 
         <button
           className="bg-green-600 px-6 py-2 rounded-lg text-white font-bold hover:bg-green-700 transition"
-          onClick={calculateHandicap}
+          onClick={() => {calculateHandicap(); calculateSD(), saveRound()}}
         >
-          BERECHNEN
+          BERECHNEN & Speichern
         </button>
-      </div>
+     </div>
     </div>
   );
 }
