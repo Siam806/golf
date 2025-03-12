@@ -1,27 +1,25 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useContext } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { authContext } from "../context/AuthContext";
-import { useContext } from "react";
-
 
 // Beispielhafter InputField-Stub.
-// Nimm entweder deinen bestehenden InputField-Komponenten-Import
-// oder ersetze diesen Code durch deine Version
-function InputField({ title, value, onChange }) {
+// Nimm hier gerne deinen eigenen InputField-Import oder ersetze dies mit deiner Version.
+function InputField({ title, value, onChange, placeholder = "", type = "text" }) {
   return (
     <label className="block">
       <span className="text-white">{title}</span>
       <input
-        type="text"
+        type={type}
         className="p-2 text-white bg-gray-700 border rounded w-full mt-1"
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
       />
     </label>
   );
 }
 
-// ----- Hilfsfunktionen EGA-Logik -----
+// ------------- Hilfsfunktionen (unverändert lassen) -------------
 
 function getEgaCategory(hcp) {
   if (hcp < 4.5) return 1;
@@ -32,59 +30,40 @@ function getEgaCategory(hcp) {
   return 6;
 }
 
-//rundet auf
 function roundHalfUp(value, decimals = 0) {
-    const factor = Math.pow(10, decimals);
-    // Vor-Rundung, um Floating-Fehler zu verringern
-    const scaled = (value * factor).toFixed(decimals + 2);
-    const numeric = parseFloat(scaled);
-    const floored = Math.floor(numeric + 0.5);
-    return floored / factor;
-  }
+  const factor = Math.pow(10, decimals);
+  const scaled = (value * factor).toFixed(decimals + 2);
+  const numeric = parseFloat(scaled);
+  const floored = Math.floor(numeric + 0.5);
+  return floored / factor;
+}
 
-// 18-Loch Playing Handicap
 function playingHandicap18(hcp, courseRating, slopeRating, par) {
   const category = getEgaCategory(hcp);
-
   if (category < 6) {
-    // Kat 1–5
     const raw = hcp * (slopeRating / 113) + (courseRating - par);
     return Math.round(roundHalfUp(raw));
-
   } else {
-    // Kat 6
-    // => hcp + (PHCP(36) - 36)
-    //   PHCP(36) ~ 36*(Slope/113) + (CR - Par)
     const diff36 = (36 * (slopeRating / 113) + (courseRating - par)) - 36;
     const raw = hcp + diff36;
     return Math.round(roundHalfUp(raw));
   }
 }
 
-// 9-Loch Playing Handicap (vereinfachte EGA-Variante)
 function playingHandicap9(hcp, courseRating9, slopeRating9, par9) {
   const category = getEgaCategory(hcp);
-
   if (category < 6) {
-    // Kat 1–5
-    // hcp/2 + CR - Par + (hcp*(slope/113))/2 etc. – hier etwas vereinfacht
     const raw = (hcp * (slopeRating9 / 113)) + (courseRating9 - par9);
     return Math.round(roundHalfUp(raw));
   } else {
-    // Kat 6
-    // => (hcp/2) + (PHCP(36,9L) - 18)
-    //   PHCP(36,9L) ~ (36*(Slope/113)/2) + (CR - Par9)
     const diff36_9 = ((36 * (slopeRating9 / 113)) + (courseRating9 - par9)) - 36;
     const raw = (hcp) + diff36_9;
     return Math.round(roundHalfUp(raw));
   }
 }
 
-// Verteilt PHCP-Schläge lochweise anhand stroke index (1=schwerstes Loch).
 function distributeStrokes(playingHCP, holes) {
-  // Kopie sortieren nach "handicap" (der stroke index)
   const sorted = [...holes].sort((a, b) => a.handicap - b.handicap);
-
   const fullStrokesPerHole = Math.floor(playingHCP / holes.length);
   let remainder = playingHCP % holes.length;
 
@@ -93,7 +72,6 @@ function distributeStrokes(playingHCP, holes) {
     extraStrokes: fullStrokesPerHole
   }));
 
-  // Verteile remainder an die "schwersten" Löcher (stroke index klein = schwer)
   for (let i = 0; i < holesWithExtra.length; i++) {
     if (remainder > 0) {
       holesWithExtra[i].extraStrokes += 1;
@@ -103,12 +81,10 @@ function distributeStrokes(playingHCP, holes) {
     }
   }
 
-  // Zurück in Originalreihenfolge sortieren
   holesWithExtra.sort((a, b) => a._originalIndex - b._originalIndex);
   return holesWithExtra;
 }
 
-// EGA-Stableford pro Loch: 2 + extraStrokes - (score - par), min 0
 function calcStableford(holesWithExtra) {
   let total = 0;
   for (const h of holesWithExtra) {
@@ -118,20 +94,18 @@ function calcStableford(holesWithExtra) {
   return total;
 }
 
-// Pufferzonenuntergrenze
 function getBufferLower(category) {
   switch (category) {
-    case 1: return 35; // Kat1: 35–36
-    case 2: return 34; // Kat2: 34–36
-    case 3: return 33; // Kat3: 33–36
-    case 4: return 32; // Kat4: 32–36
-    case 5: return 31; // Kat5: 31–36
-    case 6: return 36; // Kat6 (vereinfacht)
+    case 1: return 35;
+    case 2: return 34;
+    case 3: return 33;
+    case 4: return 32;
+    case 5: return 31;
+    case 6: return 36;
     default: return 36;
   }
 }
 
-// Senkungsfaktor pro Punkt über Puffer in der jeweiligen Kategorie
 function getSenkungFaktor(category) {
   switch (category) {
     case 1: return 0.1;
@@ -144,26 +118,21 @@ function getSenkungFaktor(category) {
   }
 }
 
-// EGA-Änderung basierend auf Pufferzone und Stableford
 function calcNewEgaHandicap(oldHcp, stableford, cba = 0) {
-  // Falls "altes" HCP Kat6 -> cba auf 0
   const category = getEgaCategory(oldHcp);
   let effectiveCba = category === 6 ? 0 : cba;
 
-  const lowerBuffer = getBufferLower(category); // z.B. 34, 35...
-  const upperBuffer = 36; // i.d.R. 36
+  const lowerBuffer = getBufferLower(category);
+  const upperBuffer = 36;
   let newHcp = oldHcp;
 
-  // Puffergrenzen
   const pufferMin = lowerBuffer + effectiveCba;
   const pufferMax = upperBuffer + effectiveCba;
 
-  // Innerhalb Puffer?
   if (stableford >= pufferMin && stableford <= pufferMax) {
     return newHcp;
   }
 
-  // Über Puffer => Senkung
   if (stableford > pufferMax) {
     let diff = stableford - pufferMax;
     for (let i = 0; i < diff; i++) {
@@ -173,88 +142,104 @@ function calcNewEgaHandicap(oldHcp, stableford, cba = 0) {
     return newHcp;
   }
 
-  // Unter Puffer => Erhöhung
   if (stableford < pufferMin) {
     let diff = pufferMin - stableford;
-    // Im echten EGA max +0.1 pro Runde in Kat1–4.
     for (let i = 0; i < diff; i++) {
       newHcp += 0.1;
     }
     return newHcp;
   }
-
   return newHcp;
 }
+// ---------------------------------------------------------------
 
+// Dies ist die "Bearbeiten"-Seite.
+// Sie läd per URL-Parameter eine Runde aus dem LocalStorage und
+// ermöglicht das Bearbeiten sowie die erneute Berechnung & Speicherung.
 
-export default function EGAForm() {
-    const [handicap, setHandicap] = useState('23.7');
-    const [par, setPar] = useState('35');
-    const [courseRating, setCourseRating] = useState('34.1');
-    const [slopeRating, setSlopeRating] = useState('115');
-    const [cba, setCba] = useState('0');        
-    const [isNineHoles, setIsNineHoles] = useState(false);
-    const [roundName, setRoundName] = useState(""); // Name der Runde
-    const { currentUser } = useContext(authContext);
-
+export default function EGAEditForm() {
+  const location = useLocation();
   const navigate = useNavigate();
 
+  // Query-Parameter auslesen
+  const params = new URLSearchParams(location.search);
+  const roundNameParam = params.get('roundName');
+  const roundEmailParam = params.get('roundEmail');
 
-  // Beispiel-Daten für 18 Löcher, stroke index = "handicap"
-  const generateTestHoles = () => [
-    { par: 3, handicap: 4, score: 4 },
-    { par: 4, handicap: 16, score: 5 },
-    { par: 4, handicap: 1, score: 5 },
-    { par: 5, handicap: 10, score: 6 },
-    { par: 4, handicap: 7, score: 6 },
-    { par: 4, handicap: 13, score: 5 },
-    { par: 3, handicap: 5, score: 6 },
-    { par: 4, handicap: 17, score: 9 },
-    { par: 4, handicap: 2, score: 5 },
-    { par: 5, handicap: 11, score: 5 },
-    { par: 4, handicap: 8, score: 6 },
-    { par: 4, handicap: 14, score: 6 },
-    { par: 3, handicap: 6, score: 5 },
-    { par: 4, handicap: 18, score: 6 },
-    { par: 4, handicap: 3, score: 6 },
-    { par: 5, handicap: 12, score: 6 },
-    { par: 4, handicap: 9, score: 5 },
-    { par: 4, handicap: 15, score: 6 }
+  // Auth-Kontext (falls benötigt)
+  const { currentUser } = useContext(authContext);
 
-  ];
+  // States für das Formular
+  const [handicap, setHandicap] = useState('');
+  const [par, setPar] = useState('');
+  const [courseRating, setCourseRating] = useState('');
+  const [slopeRating, setSlopeRating] = useState('');
+  const [cba, setCba] = useState('0');
+  const [isNineHoles, setIsNineHoles] = useState(false);
+  const [roundName, setRoundName] = useState("");
+  const [holes, setHoles] = useState([]);
 
-  const [holes, setHoles] = useState(
-    /*Array.from({ length: 18 }, () => ({ par: "", handicap: "", score: "" })*/
-    
-    generateTestHoles());
+  // Beim ersten Rendern (oder wenn sich Param ändert) => Lade Daten
+  useEffect(() => {
+    if (roundNameParam && roundEmailParam) {
+      // Alle Nutzer aus LocalStorage holen
+      let users = JSON.parse(localStorage.getItem("users")) || [];
+      // Entsprechenden Nutzer finden
+      const user = users.find(u => u.userEmail === roundEmailParam);
+      if (!user || !user.rounds) {
+        console.warn("Kein passender Nutzer oder keine Runden vorhanden");
+        return;
+      }
+      // Runde finden
+      const existingRound = user.rounds.find(r => r.name === roundNameParam);
+      if (!existingRound) {
+        console.warn("Keine Runde mit diesem Namen gefunden");
+        return;
+      }
 
+      // States aus der gefundenen Runde übernehmen
+      setHandicap(existingRound.handicap || '0');
+      setPar(existingRound.par || '0');
+      setCourseRating(existingRound.courseRating || '0');
+      setSlopeRating(existingRound.slopeRating || '0');
+      setRoundName(existingRound.name || "");
+      setIsNineHoles(!!existingRound.isNineHoles);
+
+      // Falls Löcher vorhanden
+      if (existingRound.holes && Array.isArray(existingRound.holes)) {
+        setHoles(existingRound.holes);
+      } else {
+        // Falls nix da, leeres Array anlegen
+        setHoles([]);
+      }
+    }
+  }, [roundNameParam, roundEmailParam]);
+
+  // Anzahl Löcher umschalten (9 <-> 18)
+  const toggleHoleCount = () => {
+    setIsNineHoles(prev => !prev);
+  };
   const holeCount = isNineHoles ? 9 : 18;
 
-  // Input-Handler Loch
+  // Eingabefelder pro Loch
   const handleHoleChange = (index, field, value) => {
     const newHoles = [...holes];
     newHoles[index] = { ...newHoles[index], [field]: value };
     setHoles(newHoles);
   };
 
-  const toggleHoleCount = () => {
-    setIsNineHoles(prev => !prev);
-  };
-
-  // Hauptberechnung
+  // Hauptberechnung identisch wie bei "Neuanlage"
   const calculateHandicap = () => {
     if (!handicap || !par || !courseRating || !slopeRating) {
       alert("Bitte alle Felder (Handicap, Par, Course Rating, Slope Rating) ausfüllen!");
       return;
     }
-
     const oldHcp = parseFloat(handicap);
     const parValue = parseInt(par);
     const courseRatingValue = parseFloat(courseRating);
     const slopeRatingValue = parseInt(slopeRating);
     const cbaValue = parseInt(cba) || 0;
 
-    // Nimm nur 9 oder 18 Löcher
     const usedHoles = holes.slice(0, holeCount).map((h, i) => ({
       ...h,
       par: parseInt(h.par),
@@ -263,116 +248,109 @@ export default function EGAForm() {
       _originalIndex: i
     }));
 
-    // 1) Playing Handicap
     let phcp = 0;
     if (isNineHoles) {
-      // z.B. halbes Par weitergeben -> parValue / 2
       phcp = playingHandicap9(oldHcp, courseRatingValue, slopeRatingValue, parValue);
     } else {
       phcp = playingHandicap18(oldHcp, courseRatingValue, slopeRatingValue, parValue);
     }
 
-    // 2) EHCP-Schläge verteilen
     const holesWithExtra = distributeStrokes(phcp, usedHoles);
-
-    // 3) Netto-Stableford
     let stableford = calcStableford(holesWithExtra);
 
-    // 4) 9-Loch-Regel (nach altem EGA-Standard): +18 Punkte
     if (isNineHoles) {
       stableford += 18;
     }
 
-    // 5) Handicap nach Pufferzonen, Senkung/Erhöhung anpassen
     let newHcp = calcNewEgaHandicap(oldHcp, stableford, cbaValue);
-
-    // 6) Runden & limitieren (EGA max 54)
     newHcp = Math.min(54, Math.max(-54, newHcp));
     const finalHcp = roundHalfUp(newHcp, 1);
 
-    //variable für Weiterleitung definieren
-    const sd = calculateSD();
+    // Du könntest hier noch optional den Score Differential berechnen oder was du sonst brauchst.
+    // Dann zurück auf die Calculated-Seite oder woanders hin:
+    // navigate('/calculated', { state: { result: finalHcp, scoreDifferential: ... } });
     
-    // Weiterleiten (oder einfach alert)
-    navigate('/calculated', { state: { result: finalHcp, scoreDifferential: sd, } });
+    // Optionaler Alert, damit man einen Hinweis bekommt
+    alert(`Neues berechnetes Handicap: ${finalHcp}`);
+    return finalHcp;
   };
 
-  const saveRound = () => {
-    // Alle Nutzer aus dem Local Storage holen
+  // Beispielhafte Hilfsfunktion für Score Differential (falls du die brauchst)
+  const calculateSD = () => {
+    const totalStrokes = holes.reduce((sum, hole) => sum + (parseInt(hole.score) || 0), 0);
+    if (slopeRating && courseRating && par) {
+      const sdValue = ((totalStrokes - parseFloat(courseRating)) / parseFloat(slopeRating)) * 113;
+      return sdValue.toFixed(2);
+    } else {
+      return null;
+    }
+  };
+
+  // "Updaten" – wir überschreiben einfach die Daten im LocalStorage
+  // in der gleichen Runde (selber Name), anstatt eine neue hinzuzufügen
+  const updateRound = () => {
+    const newHandicap = calculateHandicap(); // vorher rechnen
+    if (newHandicap === undefined) return; // Abbruch falls Fehler
+
+    // Nutzer-Liste laden
     let users = JSON.parse(localStorage.getItem("users")) || [];
-  
-    // Den aktuellen Nutzer in der Liste finden
-    let userIndex = users.findIndex(user => user.userEmail === currentUser.userEmail);
-    
+    // passenden Nutzer finden
+    let userIndex = users.findIndex(u => u.userEmail === roundEmailParam);
     if (userIndex === -1) {
       alert("Benutzer nicht gefunden!");
       return;
     }
-  
     let userData = users[userIndex];
-  
-    // Sicherstellen, dass der Nutzer ein `rounds`-Array hat
+
+    // Runde finden
     if (!userData.rounds) {
-      userData.rounds = [];
-    }
-  
-    // Überprüfen, ob der Rundenname bereits existiert
-    const isDuplicate = userData.rounds.some(round => round.name === roundName);
-  
-    if (isDuplicate) {
-      alert("Dieser Name ist bereits vergeben! Bitte wähle einen anderen.");
+      alert("Keine Runden vorhanden!");
       return;
     }
-
-    // Neue Runde erstellen
-    const round = {
-      userEmail: currentUser.userEmail,
-      name: roundName || `Runde_${userData.rounds.length + 1}`, // Standardname, falls keiner eingegeben wird
-      slopeRating,
-      courseRating,
+    let roundIndex = userData.rounds.findIndex(r => r.name === roundNameParam);
+    if (roundIndex === -1) {
+      alert("Runde nicht gefunden!");
+      return;
+    }
+    
+    // Bestehende Runde updaten
+    const updatedRound = {
+      ...userData.rounds[roundIndex],
+      // Neue Werte übernehmen
+      name: roundName,           // Falls du den Namen änderst, könntest du hier was anderes machen
+      handicap: newHandicap,     // das frisch berechnete
       par,
+      courseRating,
+      slopeRating,
+      // cba (falls du speichern möchtest)
       holes,
-      sd,
-      type: "ega",
-      handicap,
       isNineHoles
     };
-  
-    // Runde zum Nutzer hinzufügen
-    userData.rounds.push(round);
-  
-    // Aktualisierte Nutzerdaten zurückspeichern
+    userData.rounds[roundIndex] = updatedRound;
+
+    // Zurückschreiben ins LocalStorage
     users[userIndex] = userData;
     localStorage.setItem("users", JSON.stringify(users));
-  
-    alert("Runde gespeichert!");
-    console.log(round);
+
+    alert("Runde erfolgreich aktualisiert!");
   };
-  
-  
-  
-  const calculateSD = () => {
-    const totalholes = holes.reduce((sum, score) => sum + (parseInt(score) || 0), 0);
-    if (slopeRating && courseRating && par) {
-      const sdValue = ((totalholes - courseRating) / slopeRating) * 113;
-      return sdValue.toFixed(2); // Direkt zurückgeben statt `setSD` setSD(sdVal..)
-    } else {
-      alert("Bitte alle Werte eingeben!");
-    }
-  };
-  const sd = calculateSD();
 
   return (
     <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto p-6 space-y-6 lg:space-y-0 lg:space-x-8">
       <div className="w-full lg:w-1/2 flex flex-col space-y-4">
-        <h2 className="text-xl font-bold text-yellow-400">🔢 Eingaben</h2>
+        <h2 className="text-xl font-bold text-yellow-400">🔢 Eingaben (Edit-Modus)</h2>
         <InputField title="Bisheriges Handicap" value={handicap} onChange={setHandicap} />
         <InputField title="PAR des Golfplatzes" value={par} onChange={setPar} />
         <InputField title="Course Rating" value={courseRating} onChange={setCourseRating} />
         <InputField title="Slope Rating" value={slopeRating} onChange={setSlopeRating} />
-        <InputField title="Name der Runde" type="text" value={roundName} onChange={(setRoundName)} placeholder="Gib der Runde einen Namen" />
-
-        {/* Optional: CBA-Feld}
+        <InputField 
+          title="Name der Runde" 
+          type="text" 
+          value={roundName} 
+          onChange={setRoundName} 
+          placeholder="Name der Runde" 
+        />
+        {/* Optional: CBA-Feld
         <InputField title="CBA (optional)" value={cba} onChange={setCba} />*/}
 
         <button 
@@ -416,11 +394,17 @@ export default function EGAForm() {
 
         <button
           className="bg-green-600 px-6 py-2 rounded-lg text-white font-bold hover:bg-green-700 transition"
-          onClick={() => {calculateHandicap(); calculateSD(), saveRound()}}
+          onClick={updateRound}
         >
-          BERECHNEN & Speichern
+          BERECHNEN & Updaten
         </button>
-     </div>
+        <a
+        href="/results"
+        className="bg-gray-600 px-6 py-2 rounded-lg text-white font-bold hover:bg-gray-700 transition"
+      >
+        Zurück zur Ergebnisübersicht
+      </a>
+      </div>
     </div>
   );
 }

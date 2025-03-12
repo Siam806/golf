@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { authContext } from "../context/AuthContext";
 
 const ResultsPage = () => {
@@ -8,6 +8,8 @@ const ResultsPage = () => {
   const { currentUser } = useContext(authContext);
   const [searchParams] = useSearchParams();
   const userEmailFromUrl = searchParams.get("userEmail"); // User-E-Mail aus den URL-Parametern holen
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const users = JSON.parse(localStorage.getItem("users")) || [];  
@@ -34,6 +36,13 @@ const ResultsPage = () => {
 
     setRounds(allRounds);
   }, [currentUser, userEmailFromUrl]);
+  const handleDetailsClick = (round) => {
+    if (round?.type === "whs") {
+      navigate(`/round?roundName=${round.name}&roundEmail=${round.userEmail}`);
+    } else {
+      navigate(`/roundEGA?roundName=${round.name}&roundEmail=${round.userEmail}`);
+    }
+  };
   
 
   const handleDelete = (roundName, roundEmail) => {
@@ -67,7 +76,7 @@ const ResultsPage = () => {
       }
       return round; // Benutzerdefinierte Namen bleiben unverändert
     });
-
+    
     // Nutzer-Daten im `users`-Array aktualisieren
     users[userIndex] = userData;
   
@@ -76,6 +85,7 @@ const ResultsPage = () => {
   
     alert("Runde gelöscht!");
     window.location.reload(); // Seite neu laden, um den aktuellen Stand anzuzeigen
+    
   };
   
 
@@ -99,12 +109,12 @@ const ResultsPage = () => {
               {currentUser.userRole == "Spielführer" ? <p>Nutzer: {round.userEmail}</p> : <></>}
             </div>
             <div className="flex gap-4">
-              <Link
-                to={`/round?roundName=${round.name}&roundEmail=${round.userEmail}`}
-                className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700"
-              >
-                Details
-              </Link>
+              <button
+                  onClick={() => handleDetailsClick(round)}
+                  className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700"
+                >
+                  Details
+              </button>
               <button
                 onClick={() => handleDelete(round.name, round.userEmail)}
                 className="bg-red-600 text-white p-2 rounded-lg hover:bg-red-700"

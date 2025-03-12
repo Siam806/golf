@@ -65,6 +65,7 @@ const SDForm = () => {
       par,
       scores,
       sd,
+      type: "whs",
     };
   
     // Runde hinzufügen
