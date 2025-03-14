@@ -64,7 +64,7 @@ const SDForm = () => {
       courseRating,
       par,
       scores,
-      sd,
+      sd
     };
   
     // Runde hinzufügen
