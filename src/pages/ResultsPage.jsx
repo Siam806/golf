@@ -78,12 +78,64 @@ const ResultsPage = () => {
     pdfMake.createPdf(docDefinition).download(`Scorecard_${round.name}.pdf`);
   };
 
+  const generateEGAScorecard = (round) => {
+    if (!round) return;
+  
+    const holesData = round.holes.map((hole, index) => {
+      // Hier wird jedes Loch als Array von [Lochnummer, Handicap, Schlaganzahl] erstellt.
+      const holeData = [
+        index + 1, // Lochnummer
+        hole.handicap || "", // Handicap
+        hole.score || "", // Schlaganzahl
+      ];
+      return holeData;
+    });
+  
+    const docDefinition = {
+      content: [
+        { text: "Golf Scorecard", style: "header" },
+        { text: `Spieler: ${round.userEmail}` },
+        { text: `Runde: ${round.name}` },        
+        { text: `Handicap: ${JSON.parse(localStorage.getItem("currentUser")).userHandicap ?? "Nicht verfügbar"}` },
+        { text: `Slope Rating: ${round.slopeRating}` },
+        { text: `Course Rating: ${round.courseRating}` },
+        { text: `Score Differential (SD): ${round.sd}` },
+        { text: "Scores:", style: "subheader" },
+        {
+          table: {
+            body: [
+              ["Loch", "Handicap", "Schläge"],
+              ...holesData, // Hier fügen wir die Loch-Daten ein.
+            ],
+          },
+        },
+      ],
+      styles: {
+        header: {
+          fontSize: 18,
+          bold: true,
+          alignment: "center",
+          margin: [0, 20, 0, 20],
+        },
+        subheader: {
+          fontSize: 14,
+          bold: true,
+          margin: [0, 20, 0, 10],
+        },
+      },
+    };
+    pdfMake.createPdf(docDefinition).download(`Scorecard_${round.name}.pdf`);
+
+  };
+  
+  
+
 
   const handleDruckClick = (round) => {
     if (round?.type === "whs") {
       generateWhsScorecard(round)
     } else {
-      
+      generateEGAScorecard(round)
     }
   };
   

@@ -355,7 +355,13 @@ export default function EGAForm() {
     const totalholes = holes.reduce((sum, score) => sum + (parseInt(score) || 0), 0);
     if (slopeRating && courseRating && par) {
       const sdValue = ((totalholes - courseRating) / slopeRating) * 113;
-      return sdValue.toFixed(2); // Direkt zurückgeben statt `setSD` setSD(sdVal..)
+      if (sdValue < 0){
+        return sdValue.toFixed(2)*-1; // Direkt zurückgeben statt `setSD` setSD(sdVal..)   
+
+      }
+      else{
+        return sdValue.toFixed(2); // Direkt zurückgeben statt `setSD` setSD(sdVal..)   
+      }
     } else {
       alert("Bitte alle Werte eingeben!");
     }
