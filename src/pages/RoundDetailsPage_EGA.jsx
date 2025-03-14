@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { authContext } from "../context/AuthContext";
+import Mailto from "../components/Mailto";
 
 // Beispielhafter InputField-Stub.
 // Nimm hier gerne deinen eigenen InputField-Import oder ersetze dies mit deiner Version.
@@ -333,6 +334,8 @@ export default function EGAEditForm() {
     localStorage.setItem("users", JSON.stringify(users));
 
     alert("Runde erfolgreich aktualisiert!");
+
+    Mailto(userData.userEmail, userData.userName, handicap, newHandicap );
   };
 
   return (
