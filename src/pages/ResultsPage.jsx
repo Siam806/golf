@@ -2,6 +2,10 @@ import React, { useState, useEffect, useContext } from "react";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { authContext } from "../context/AuthContext";
 
+import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
+pdfMake.vfs = pdfFonts.pdfMake ? pdfFonts.pdfMake.vfs : pdfFonts.vfs;
+
 const ResultsPage = () => {
   const [rounds, setRounds] = useState([]);
   const [roundsForWho, setRoundsForWho] = useState("");
@@ -41,6 +45,45 @@ const ResultsPage = () => {
       navigate(`/round?roundName=${round.name}&roundEmail=${round.userEmail}`);
     } else {
       navigate(`/roundEGA?roundName=${round.name}&roundEmail=${round.userEmail}`);
+    }
+  };
+
+  const generateWhsScorecard = (round) => {
+    if (!round) return;
+    const docDefinition = {
+      content: [
+        { text: "Golf Scorecard", style: "header" },
+        { text: `Spieler: ${round.userEmail}` },
+        { text: `Runde: ${round.name}` },
+        { text: `Handicap: ${JSON.parse(localStorage.getItem("currentUser")).userHandicap ?? "Nicht verfügbar"}` },
+        { text: `Slope Rating: ${round.slopeRating}` },
+        { text: `Course Rating: ${round.courseRating}` },
+        { text: `Score Differential (SD): ${round.sd}` },
+        { text: "Scores:", style: "subheader" },
+        {
+          table: {
+            body: [
+              ["Loch", "Score"],
+              ...round.scores.map((score, index) => [index + 1, score]),
+            ],
+          },
+        },
+      ],
+      styles: {
+        header: { fontSize: 18, bold: true },
+        subheader: { fontSize: 14, bold: true, margin: [0, 10, 0, 5] },
+      },
+    };
+  
+    pdfMake.createPdf(docDefinition).download(`Scorecard_${round.name}.pdf`);
+  };
+
+
+  const handleDruckClick = (round) => {
+    if (round?.type === "whs") {
+      generateWhsScorecard(round)
+    } else {
+      
     }
   };
   
@@ -109,6 +152,12 @@ const ResultsPage = () => {
               {currentUser.userRole == "Spielführer" ? <p>Nutzer: {round.userEmail}</p> : <></>}
             </div>
             <div className="flex gap-4">
+              <button
+                  onClick={() => handleDruckClick(round)}
+                  className="bg-yellow-900 text-white p-2 rounded-lg hover:bg-yellow-700"
+                >
+                  Drucken 🖨️
+              </button>
               <button
                   onClick={() => handleDetailsClick(round)}
                   className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700"
