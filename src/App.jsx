@@ -7,6 +7,7 @@ import HCPtoVorgabePage from "./pages/HCPtoVorgabePage";
 import CalculatedPage from "./pages/CalculatedPage";
 import ResultsPage from "./pages/ResultsPage";
 import RoundDetailsPage from "./pages/RoundDetailsPage";
+import RoundDetailsPage_EGA from "./pages/RoundDetailsPage_EGA";
 import WHSPage from "./pages/WHSPage";
 import { useEffect } from "react";
 import { mockData } from "./utils/mockData";
@@ -70,6 +71,13 @@ export const routesMap = [
 		path: "/round",
 		title: "",
 		element: <RoundDetailsPage />,
+		public: false,
+		roles: availableRoles.slice(0, 3),
+	},
+	{
+		path: "/roundEGA",
+		title: "",
+		element: <RoundDetailsPage_EGA />,
 		public: false,
 		roles: availableRoles.slice(0, 3),
 	},
