@@ -36,61 +36,61 @@ export const routesMap = [
 		path: "/ega",
 		title: "EGA",
 		element: <EGAPage />,
-		public: false,
 		roles: [availableRoles[0], availableRoles[1]],
 	},
 	{
 		path: "/sd",
 		title: "SD",
 		element: <SDPage />,
-		public: false,
 		roles: [availableRoles[0], availableRoles[1]],
 	},
 	{
 		path: "/results",
 		title: "Ergebnisse",
 		element: <ResultsPage />,
-		public: false,
 		roles: availableRoles.slice(0, 3),
 	},
 	{
 		path: "/whs",
 		title: "WHS",
 		element: <WHSPage />,
-		public: false,
 		roles: [availableRoles[0], availableRoles[1]],
 	},
 	{
 		path: "/calculated",
 		title: "",
 		element: <CalculatedPage />,
-		public: false,
 		roles: availableRoles.slice(0, 3),
 	},
 	{
 		path: "/round",
 		title: "",
 		element: <RoundDetailsPage />,
-		public: false,
 		roles: availableRoles.slice(0, 3),
 	},
 	{
 		path: "/roundEGA",
 		title: "",
 		element: <RoundDetailsPage_EGA />,
-		public: false,
 		roles: availableRoles.slice(0, 3),
 	},
 	{
 		path: "/hcptovorgabe",
 		title: "Spielvorgabe",
 		element: <HCPtoVorgabePage />,
-		public: false,
 		roles: availableRoles[2],
 	},
-	
-
-
+	{
+		path: "/*",
+		element: (
+			<h1>
+				404 - Seite nicht gefunden
+				<Link to="/" className="mt-4 block text-center text-blue-500 font-extrabold underline text-lg active:text-gre">
+					Home
+				</Link>
+			</h1>
+		),
+	},
 ];
 
 export default function App() {
@@ -108,26 +108,16 @@ export default function App() {
 
 	return (
 		<AuthContextProvider>
-			<Navbar />
-			<div className="h-screen w-screen m-0 p-0 text-blue-50 bg-[#101217] relative flex items-center justify-center">
-				<div className="absolute inset-0 bg-[url('./assets/golf-bg.jpg')] bg-center bg-cover bg-no-repeat filter blur-sm bg-black bg-opacity-50 z-0"></div>
-				<main className="relative min-w-[45%] max-w-[90%] z-10 p-4 bg-green-200/20 rounded-4xl">
-					<div className="min-h-[65vh] flex justify-center items-center bg-gray-900 rounded-4xl p-8 text-green-400 shadow-lg shadow-green-400 text-xs">
+			<div className="h-screen w-full grid grid-cols-1 grid-rows-[80px_1fr] gap-4">
+				<Navbar />
+
+				<main className="mb-10 mx-10 flex items-center justify-center">
+					<div className="min-w-[50%] max-w-[90%] p-10 bg-gray-900 text-center rounded-4xl shadow-lg shadow-green-400">
 						<Routes>
 							{routesMap.map((route, index) => (
-								<Route key={index} path={route.path} element={<ProtectedRoute element={route.element} allowedRoles={route.roles} />} />
+								<Route key={index} path={route.path} element={!route.title ? route.element : <ProtectedRoute element={route.element} allowedRoles={route.roles} />} />
 							))}
-							<Route
-								path="/*"
-								element={
-									<h1>
-										404 - Seite nicht gefunden
-										<Link to="/" className="mt-4 block text-center text-blue-500 font-extrabold underline text-lg active:text-gre">
-											Home
-										</Link>
-									</h1>
-								}
-							/>
+							<Route />
 						</Routes>
 					</div>
 				</main>

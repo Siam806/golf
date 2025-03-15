@@ -3,6 +3,7 @@ export const mockData = [
     // Daten aus Dokument von Herrn Lade
     userName: "John Doe",
     userEmail: "johnDoe@gmail.com",
+    userPassword: "johnDoePwd",
     userRole: "Golfer",
     rounds: [
       { userEmail: "johnDoe@gmail.com", name: "Runde 1", slopeRating: 115, courseRating: 70.9, par: 72, scores: [5, 6, 8, 7, 6, 6, 6, 6, 6, 7, 6, 6, 5, 6, 6, 6, 5, 6], sd: 37.4 },
@@ -23,6 +24,7 @@ export const mockData = [
     // Daten aus Dokument von Herrn Lade
     userName: "Jane Smith",
     userEmail: "janeSmith@gmail.com",
+    userPassword: "janeSmithPwd",
     userRole: "Golfer",
     rounds: [
       { userEmail: "janeSmith@gmail.com", name: "Runde 1", slopeRating: 115, courseRating: 70.9, par: 72, scores: [5, 6, 8, 7, 6, 6, 6, 6, 6, 7, 6, 6, 5, 6, 6, 6, 5, 6], sd: 37.4 },
@@ -43,6 +45,7 @@ export const mockData = [
     // Der Rest ist erstellt via ChatGPT, kann inkorrekte Daten vorhanden sein.
     userName: "Michael Johnson",
     userEmail: "michaelJ@gmail.com",
+    userPassword: "michaelJPwd",
     userRole: "Golfer",
     rounds: [
       { userEmail: "michaelJ@gmail.com", name: "Round 1", courseRating: 69.5, slopeRating: 110, par: 70, sd: 36.0, scores: ["4", "5", "6", "5", "5", "5", "4", "5", "6", "5", "5", "4", "5", "5", "6", "5", "4", "5"] },
@@ -54,6 +57,7 @@ export const mockData = [
   {
     userName: "Sarah Lee",
     userEmail: "sarahLee@gmail.com",
+    userPassword: "sarahLeePwd",
     userRole: "Golfer",
     rounds: [
       { userEmail: "sarahLee@gmail.com", name: "Round 1", courseRating: 71.0, slopeRating: 114, par: 72, sd: 37.8, scores: ["5", "5", "6", "6", "6", "7", "5", "5", "5", "6", "6", "5", "5", "6", "7", "6", "5", "6"] },
@@ -66,6 +70,7 @@ export const mockData = [
   {
     userName: "Daniel Brown",
     userEmail: "danielBrown@gmail.com",
+    userPassword: "danielBrownPwd",
     userRole: "Golfer",
     rounds: [
       { userEmail: "danielBrown@gmail.com", name: "Round 1", courseRating: 70.5, slopeRating: 114, par: 70, sd: 36.6, scores: ["5", "6", "5", "5", "6", "5", "4", "5", "6", "6", "5", "5", "5", "6", "5", "6", "6", "5"] },
@@ -78,6 +83,7 @@ export const mockData = [
   {
     userName: "Chris White",
     userEmail: "chrisWhite@gmail.com",
+    userPassword: "chrisWhitePwd",
     userRole: "Golfer",
     rounds: [
       { userEmail: "chrisWhite@gmail.com", name: "Round 1", courseRating: 69.0, slopeRating: 112, par: 70, sd: 36.3, scores: ["4", "5", "6", "5", "5", "6", "6", "5", "6", "5", "5", "5", "5", "5", "4", "6", "5", "5"] },
@@ -90,6 +96,7 @@ export const mockData = [
   {
     userName: "Robert Davis",
     userEmail: "robertDavis@gmail.com",
+    userPassword: "robertDavisPwd",
     userRole: "Golfer",
     rounds: [
       { userEmail: "robertDavis@gmail.com", name: "Round 1", courseRating: 70.9, slopeRating: 115, par: 72, sd: 37.44, scores: ["5", "6", "8", "7", "6", "6", "6", "6", "6", "7", "6", "6", "5", "6", "6", "6", "5", "6"] },

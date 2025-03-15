@@ -13,7 +13,7 @@ const Navbar = () => {
 	};
 
 	return (
-		<nav className="fixed top-0 left-0 z-50 w-screen bg-green-800 text-white text-sm font-bold px-5 py-3 flex justify-between items-center">
+		<nav className="bg-green-800 text-white text-sm font-bold px-5 py-3 flex justify-between items-center">
 			<Link to="/" className="flex items-center gap-2 hover:underline">
 				<img width="30" src="/favicon.png" alt="Favicon" />
 				<h1 className="text-xl font-bold">Handicalc</h1>

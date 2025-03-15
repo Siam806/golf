@@ -18,15 +18,15 @@ export default function Home() {
 	const saveUserData = (e) => {
 		e.preventDefault();
 		// Benutzerdaten aus dem Formular holen
-		const { userName, userRole, userEmail } = Object.fromEntries(new FormData(e.target));
+		const { userName, userRole, userEmail, userPassword } = Object.fromEntries(new FormData(e.target));
 		if (isEditing) {
-			edit(userName, userRole, userEmail, currentUser.userEmail);
+			edit(userName, userRole, userEmail, currentUser.userEmail, userPassword);
 			setIsEditing(false);
 		} else {
 			if (isLogin) {
-				login(userEmail);
+				login(userEmail, userPassword);
 			} else {
-				signup(userName, userRole, userEmail);
+				signup(userName, userRole, userEmail, userPassword);
 			}
 		}
 	};
@@ -45,10 +45,11 @@ export default function Home() {
 					)}
 
 					<InputField required title="Gib deine E-Mail ein:" type="email" name="userEmail" placeholder="E-Mail-Adresse" />
+					<InputField required title="Gib ein Passwort ein:" type="password" name="userPassword" placeholder="Passwort" />
 
-					<div className="mt-4 flex flex-col">
-						<CustomButton text={isLogin ? "Anmelden" : "Registrieren"} type="submit" styles="bg-green-500" />
-						<CustomButton text={isLogin ? "zur Registrierung" : "zur Anmeldung"} type="button" onClick={() => setIsLogin(!isLogin)} styles="bg-gray-800 border-white border font-thin " />
+					<div className="mt-4 flex flex-col items-center">
+						<CustomButton text={isLogin ? "Anmelden" : "Registrieren"} type="submit" styles="bg-green-500 w-[300px]" />
+						<CustomButton text={isLogin ? "zur Registrierung" : "zur Anmeldung"} type="button" onClick={() => setIsLogin(!isLogin)} styles="bg-gray-800 w-[300px] border-white border font-thin " />
 					</div>
 				</form>
 			) : isEditing ? (
@@ -56,15 +57,17 @@ export default function Home() {
 					<InputField required defaultValue={currentUser.userName} title="Wie heißt du:" name="userName" placeholder="Gib deinen Namen ein" />
 					<InputField required defaultValue={currentUser.userRole} title="Wähle deine Rolle:" name="userRole" optionsList={["-- Wähle eine Rolle --", ...availableRoles]} />
 					<InputField required defaultValue={currentUser.userEmail} title="Gib deine E-Mail ein:" type="email" name="userEmail" placeholder="E-Mail-Adresse" />
-					<div className="mt-4 flex flex-col">
-						<CustomButton text="Sichern" type="submit" styles="bg-blue-500 mt-4" />
-						<CustomButton text="Abbrechen" type="button" onClick={() => setIsEditing(false)} styles="bg-red-500 mt-4" />
+					<InputField required defaultValue={currentUser.userPassword} title="Gib dein Passwort ein:" type="password" name="userPassword" placeholder="Passwort" />
+
+					<div className="mt-4 flex flex-col items-center">
+						<CustomButton text="Sichern" type="submit" styles="bg-blue-500 mt-4 w-[300px]" />
+						<CustomButton text="Abbrechen" type="button" onClick={() => setIsEditing(false)} styles="bg-red-500 mt-4 w-[300px]" />
 					</div>
 				</form>
 			) : (
 				// Anzeige der Benutzerdaten
 				<div className="space-y-5 text-sm">
-					<section className="grid grid-cols-2 justify-items-start gap-x-1 gap-y-2 overflow-auto">
+					<section className="grid grid-cols-2 justify-items-start bg-green-700/10 rounded-xl p-4 gap-x-1 gap-y-2 overflow-auto">
 						<p>👋 Hallo,</p>
 						<span className="font-bold">{(currentUser?.userName ?? "") + "!"}</span>
 						<p>🛠 Rolle:</p>
@@ -72,9 +75,9 @@ export default function Home() {
 						<p>📧 E-Mail:</p>
 						<span className="font-bold">{currentUser?.userEmail ?? ""}</span>
 					</section>
-					<section className="mt-10 flex flex-col gap-1">
-						<CustomButton text="Bearbeiten" type="button" onClick={() => setIsEditing(!isEditing)} styles="bg-blue-500" />
-						<CustomButton text="Ausloggen" type="button" onClick={logout} styles="bg-red-500" />
+					<section className="mt-10 flex flex-col items-center gap-1">
+						<CustomButton text="Bearbeiten" type="button" onClick={() => setIsEditing(!isEditing)} styles="bg-blue-500 w-[300px]" />
+						<CustomButton text="Ausloggen" type="button" onClick={logout} styles="bg-red-500 w-[300px]" />
 					</section>
 				</div>
 			)}
