@@ -11,7 +11,7 @@ const WHSPage = () => {
   // Runden aus localStorage laden
   useEffect(() => {
     const users = JSON.parse(localStorage.getItem("users")) || [];
-    const userRounds = users.find(user => user.userEmail === currentUser.userEmail).rounds;
+    const userRounds = users.find(user => user.userEmail === currentUser.userEmail).rounds || [];
     setRounds(userRounds);
   }, []);
 
