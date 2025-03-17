@@ -355,7 +355,13 @@ export default function EGAForm() {
     const totalholes = holes.reduce((sum, score) => sum + (parseInt(score) || 0), 0);
     if (slopeRating && courseRating && par) {
       const sdValue = ((totalholes - courseRating) / slopeRating) * 113;
-      return sdValue.toFixed(2); // Direkt zurückgeben statt `setSD` setSD(sdVal..)
+      if (sdValue < 0){
+        return sdValue.toFixed(2)*-1; // Direkt zurückgeben statt `setSD` setSD(sdVal..)   
+
+      }
+      else{
+        return sdValue.toFixed(2); // Direkt zurückgeben statt `setSD` setSD(sdVal..)   
+      }
     } else {
       alert("Bitte alle Werte eingeben!");
     }
@@ -363,7 +369,7 @@ export default function EGAForm() {
   const sd = calculateSD();
 
   return (
-    <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto p-6 space-y-6 lg:space-y-0 lg:space-x-8">
+    <div className="flex flex-col lg:flex-row  lg:space-y-0 lg:space-x-8">
       <div className="w-full lg:w-1/2 flex flex-col space-y-4">
         <h2 className="text-xl font-bold text-yellow-400">🔢 Eingaben</h2>
         <InputField title="Bisheriges Handicap" value={handicap} onChange={setHandicap} />

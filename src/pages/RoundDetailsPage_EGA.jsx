@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { authContext } from "../context/AuthContext";
+import Mailto from "../components/Mailto";
 
 // Beispielhafter InputField-Stub.
 // Nimm hier gerne deinen eigenen InputField-Import oder ersetze dies mit deiner Version.
@@ -277,14 +278,21 @@ export default function EGAEditForm() {
 
   // Beispielhafte Hilfsfunktion für Score Differential (falls du die brauchst)
   const calculateSD = () => {
-    const totalStrokes = holes.reduce((sum, hole) => sum + (parseInt(hole.score) || 0), 0);
+    const totalholes = holes.reduce((sum, score) => sum + (parseInt(score) || 0), 0);
     if (slopeRating && courseRating && par) {
-      const sdValue = ((totalStrokes - parseFloat(courseRating)) / parseFloat(slopeRating)) * 113;
-      return sdValue.toFixed(2);
+      const sdValue = ((totalholes - courseRating) / slopeRating) * 113;
+      if (sdValue < 0){
+        return sdValue.toFixed(2)*-1; // Direkt zurückgeben statt `setSD` setSD(sdVal..)   
+
+      }
+      else{
+        return sdValue.toFixed(2); // Direkt zurückgeben statt `setSD` setSD(sdVal..)   
+      }
     } else {
-      return null;
+      alert("Bitte alle Werte eingeben!");
     }
   };
+  const sd = calculateSD();
 
   // "Updaten" – wir überschreiben einfach die Daten im LocalStorage
   // in der gleichen Runde (selber Name), anstatt eine neue hinzuzufügen
@@ -322,7 +330,7 @@ export default function EGAEditForm() {
       par,
       courseRating,
       slopeRating,
-      // cba (falls du speichern möchtest)
+      sd,
       holes,
       isNineHoles
     };
@@ -333,6 +341,8 @@ export default function EGAEditForm() {
     localStorage.setItem("users", JSON.stringify(users));
 
     alert("Runde erfolgreich aktualisiert!");
+
+    Mailto(userData.userEmail, userData.userName, handicap, newHandicap );
   };
 
   return (
