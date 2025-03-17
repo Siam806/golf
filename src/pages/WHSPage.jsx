@@ -103,8 +103,11 @@ const WHSPage = () => {
         </table>
       </div>
 
-      {rounds.length === 0 && (
-        <p className="text-center mt-6 text-white">Noch keine Runden gespeichert. Trage sie ein, um dein Handicap zu berechnen.</p>
+      {!rounds || rounds.length === 0 && (
+        <p className="text-center mt-6 text-white">Noch keine Runden gespeichert. Trage sie in <a
+        href="/sd"
+        className="font-bold hover:bg-gray-700 transition"
+      >SD</a> ein, um dein Handicap zu berechnen.</p>
       )}
     </div>
   );
