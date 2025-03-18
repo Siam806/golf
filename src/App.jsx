@@ -14,6 +14,7 @@ import { mockData } from "./utils/mockData";
 import { AuthContextProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MembersPage from "./pages/MembersPage";
+import ScoresPage from "./pages/ScoresPage";
 
 // Rollen, die ein Benutzer haben kann
 export const availableRoles = ["Golfer", "Spielführer", "Sekretär"];
@@ -25,6 +26,12 @@ export const routesMap = [
 		title: "Home",
 		element: <HomePage />,
 		roles: [undefined, ...availableRoles], // Jeder Benutzer und ein nicht angemeldeter Benutzer kann die Startseite sehen
+	},
+	{
+		path: "/scores",
+		title: "Scores",
+		element: <ScoresPage />,
+		roles: [availableRoles[0]],
 	},
 	{
 		path: "/members",
@@ -111,15 +118,13 @@ export default function App() {
 			<div className="h-screen w-full grid grid-cols-1 grid-rows-[80px_1fr] gap-4">
 				<Navbar />
 
-				<main className="mb-10 mx-10 flex items-center justify-center">
-					<div className="min-w-[50%] max-w-[90%] p-10 bg-gray-900 text-center rounded-4xl shadow-lg shadow-green-400">
-						<Routes>
-							{routesMap.map((route, index) => (
-								<Route key={index} path={route.path} element={!route.title ? route.element : <ProtectedRoute element={route.element} allowedRoles={route.roles} />} />
-							))}
-							<Route />
-						</Routes>
-					</div>
+				<main className="mb-4 mx-4 flex items-center justify-center">
+					<Routes>
+						{routesMap.map((route, index) => (
+							<Route key={index} path={route.path} element={route.title === "Scores" ? <ProtectedRoute element={route.element} allowedRoles={route.roles} /> : <div className="min-w-[50%] max-w-[90%] p-10 bg-gray-900 text-center rounded-4xl shadow-lg shadow-green-400">{!route.title ? route.element : <ProtectedRoute element={route.element} allowedRoles={route.roles} />}</div>} />
+						))}
+						<Route />
+					</Routes>
 				</main>
 			</div>
 		</AuthContextProvider>

@@ -89,5 +89,47 @@ export function AuthContextProvider({ children }) {
 		setCurrentUser(undefined);
 	};
 
-	return <authContext.Provider value={{ currentUser, signup, login, edit, logout }}>{children}</authContext.Provider>;
+	const getWHS = (sd) => {
+		const sds = (currentUser?.rounds ?? []).map((r) => parseFloat(r.sd));
+		if (sds.length === 0) return "" + sd;
+		let roundsToUse = 0;
+		if (sds.length >= 20) {
+			roundsToUse = 8;
+		} else if (sds.length >= 19) {
+			roundsToUse = 7;
+		} else if (sds.length >= 17) {
+			roundsToUse = 6;
+		} else if (sds.length >= 15) {
+			roundsToUse = 5;
+		} else if (sds.length >= 12) {
+			roundsToUse = 4;
+		} else if (sds.length >= 9) {
+			roundsToUse = 3;
+		} else if (sds.length >= 6) {
+			roundsToUse = 2;
+		} else {
+			roundsToUse = 1;
+		}
+		sds.sort();
+		const whs = sds.slice(0, roundsToUse).reduce((sum, s) => sum + s) / roundsToUse;
+		return whs.toFixed(2);
+	};
+
+	const saveRound = (round) => {
+		const rounds = currentUser?.rounds ?? [];
+		if (round.name === undefined) {
+			round.name = "Round " + (rounds.length + 1);
+		}
+		rounds.push(round);
+		currentUser.rounds = rounds;
+
+		// Benutzerdaten speichern
+		const knownUsers = JSON.parse(localStorage.users ?? "[]");
+		const updatedUsers = knownUsers.map((user) => (user.userEmail === currentUser.userEmail && user.userPassword === currentUser.userPassword ? currentUser : user));
+		localStorage.setItem("users", JSON.stringify(updatedUsers));
+		// Daten des aktuellen Benutzers speichern
+		localStorage.setItem("currentUser", JSON.stringify(currentUser));
+	};
+
+	return <authContext.Provider value={{ currentUser, signup, login, edit, logout, getWHS, saveRound }}>{children}</authContext.Provider>;
 }
