@@ -8,7 +8,9 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test-ct": "playwright test -c playwright-ct.config.js"
+    "test": "npx playwright test",
+    "test-ui": "npx playwright test --ui  --project=chromium",
+    "test-codegen": "npx playwright codegen"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.6",
@@ -21,7 +23,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",
-    "@playwright/experimental-ct-react": "^1.25.2",
+    "@playwright/test": "^1.51.1",
     "@types/node": "^22.13.1",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
