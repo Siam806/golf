@@ -188,45 +188,19 @@ function calcNewEgaHandicap(oldHcp, stableford, cba = 0) {
 
 
 export default function EGAForm() {
-    const [handicap, setHandicap] = useState('23.7');
-    const [par, setPar] = useState('35');
-    const [courseRating, setCourseRating] = useState('34.1');
-    const [slopeRating, setSlopeRating] = useState('115');
-    const [cba, setCba] = useState('0');        
+    const [handicap, setHandicap] = useState('');
+    const [par, setPar] = useState('');
+    const [courseRating, setCourseRating] = useState('');
+    const [slopeRating, setSlopeRating] = useState('');
+    const [cba, setCba] = useState('');        
     const [isNineHoles, setIsNineHoles] = useState(false);
     const [roundName, setRoundName] = useState(""); // Name der Runde
     const { currentUser } = useContext(authContext);
 
   const navigate = useNavigate();
 
-
-  // Beispiel-Daten für 18 Löcher, stroke index = "handicap"
-  const generateTestHoles = () => [
-    { par: 3, handicap: 4, score: 4 },
-    { par: 4, handicap: 16, score: 5 },
-    { par: 4, handicap: 1, score: 5 },
-    { par: 5, handicap: 10, score: 6 },
-    { par: 4, handicap: 7, score: 6 },
-    { par: 4, handicap: 13, score: 5 },
-    { par: 3, handicap: 5, score: 6 },
-    { par: 4, handicap: 17, score: 9 },
-    { par: 4, handicap: 2, score: 5 },
-    { par: 5, handicap: 11, score: 5 },
-    { par: 4, handicap: 8, score: 6 },
-    { par: 4, handicap: 14, score: 6 },
-    { par: 3, handicap: 6, score: 5 },
-    { par: 4, handicap: 18, score: 6 },
-    { par: 4, handicap: 3, score: 6 },
-    { par: 5, handicap: 12, score: 6 },
-    { par: 4, handicap: 9, score: 5 },
-    { par: 4, handicap: 15, score: 6 }
-
-  ];
-
   const [holes, setHoles] = useState(
-    /*Array.from({ length: 18 }, () => ({ par: "", handicap: "", score: "" })*/
-    
-    generateTestHoles());
+    Array.from({ length: 18 }, () => ({ par: "", handicap: "", score: "" })));
 
   const holeCount = isNineHoles ? 9 : 18;
 
