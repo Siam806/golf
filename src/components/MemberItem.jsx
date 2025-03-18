@@ -6,7 +6,7 @@ export default function MemberItem({ member }) {
 
   const handleClick = () => {
     // Übergibt nur die E-Mail des Spielers
-    navigate("/results", { state: { userEmail: member.userEmail } });
+    navigate("/results?userEmail="+member.userEmail, { state: { userEmail: member.userEmail } });
   };
 
   return (

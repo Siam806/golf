@@ -193,7 +193,7 @@ const ResultsPage = () => {
       {rounds.length === 0 ? (
         <p className="text-center">
           Noch keine Runden gespeichert. <br />
-          Trage sie in <Link to={`/sd`} className="underline hover:text-gray-500">SD</Link> ein.
+          Runden können in <Link to={`/sd`} className="underline hover:text-gray-500">SD</Link> eingetragen werden.
         </p>
       ) : (
         rounds.map((round) => (
