@@ -422,7 +422,7 @@ export default function EGAForm() {
 
         <button
           className="bg-green-600 px-6 py-2 rounded-lg text-white font-bold hover:bg-green-700 transition"
-          onClick={() => {calculateHandicap(); calculateSD(), saveRound()}}
+          onClick={() => {calculateHandicap(); calculateSD(); saveRound()}}
         >
           BERECHNEN & Speichern
         </button>

@@ -5,13 +5,14 @@ import Mailto from "../components/Mailto";
 
 // Beispielhafter InputField-Stub.
 // Nimm hier gerne deinen eigenen InputField-Import oder ersetze dies mit deiner Version.
-function InputField({ title, value, onChange, placeholder = "", type = "text" }) {
+function InputField({ title, value, onChange, placeholder = "", type = "text", disabled=false }) {
   return (
     <label className="block">
       <span className="text-white">{title}</span>
       <input
         type={type}
         className="p-2 text-white bg-gray-700 border rounded w-full mt-1"
+        disabled={disabled}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
@@ -339,6 +340,10 @@ export default function EGAEditForm() {
     // Zurückschreiben ins LocalStorage
     users[userIndex] = userData;
     localStorage.setItem("users", JSON.stringify(users));
+    
+    if(currentUser.userEmail === roundEmailParam){
+      localStorage.setItem("currentUser", JSON.stringify(userData));
+    }
 
     alert("Runde erfolgreich aktualisiert!");
 
@@ -357,7 +362,9 @@ export default function EGAEditForm() {
           title="Name der Runde" 
           type="text" 
           value={roundName} 
-          onChange={setRoundName} 
+          onChange={() => {}} 
+          disabled={true}
+          // onChange={setRoundName} 
           placeholder="Name der Runde" 
         />
         {/* Optional: CBA-Feld

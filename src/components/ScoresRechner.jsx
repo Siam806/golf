@@ -6,11 +6,11 @@ import { useContext } from "react";
 // Beispielhafter InputField-Stub.
 // Nimm entweder deinen bestehenden InputField-Komponenten-Import
 // oder ersetze diesen Code durch deine Version
-function InputField({ title, value, onChange }) {
+function InputField({ title, value, onChange, placeholder }) {
 	return (
 		<label className="block">
 			<span className="text-white">{title}</span>
-			<input type="text" className="p-2 text-white bg-gray-700 border rounded w-full mt-1" value={value} onChange={(e) => onChange(e.target.value)} />
+			<input type="text" className="p-2 text-white bg-gray-700 border rounded w-full mt-1" value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} />
 		</label>
 	);
 }
@@ -346,7 +346,7 @@ export default function ScoresRechner({ setega, setwhs }) {
 				<InputField title="PAR des Golfplatzes" value={par} onChange={setPar} />
 				<InputField title="Course Rating" value={courseRating} onChange={setCourseRating} />
 				<InputField title="Slope Rating" value={slopeRating} onChange={setSlopeRating} />
-				<InputField title="Name der Runde" type="text" value={roundName} onChange={setRoundName} placeholder="Gib der Runde einen Namen" />
+				<InputField title="Name der Runde" type="text" value={roundName} onChange={setRoundName} placeholder="Runde X" />
 
 				<button className="bg-blue-600 px-4 py-2 rounded-lg text-white font-bold hover:bg-blue-700 transition" onClick={toggleHoleCount}>
 					{isNineHoles ? "Auf 18 Löcher wechseln" : "Auf 9 Löcher wechseln"}
@@ -370,7 +370,8 @@ export default function ScoresRechner({ setega, setwhs }) {
 					className="bg-green-600 px-6 py-2 rounded-lg text-white font-bold hover:bg-green-700 active:bg-green-900 transition"
 					onClick={() => {
 						calculateHandicap();
-						calculateSD(), saveCurrRound();
+						calculateSD();
+						saveCurrRound();
 					}}
 				>
 					BERECHNEN & Speichern

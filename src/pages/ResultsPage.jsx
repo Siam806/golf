@@ -33,8 +33,7 @@ const ResultsPage = () => {
       });
     } else {
       // Falls normaler User → nur eigene Runden anzeigen
-      const userData = users.find(user => user.userEmail === currentUser.userEmail);
-      allRounds = userData?.rounds || [];
+      allRounds = currentUser?.rounds ?? [];
       setRoundsForWho(" von " + currentUser.userName);
     }
 
