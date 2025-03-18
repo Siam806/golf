@@ -19,12 +19,12 @@ const ResultsPage = () => {
     const users = JSON.parse(localStorage.getItem("users")) || [];  
     let allRounds = [];
 
-    if (currentUser.userRole === "Spielführer" && userEmailFromUrl) {
+    if (currentUser.userRole === "Spielführer" && userEmailFromUrl || currentUser.userRole === "Sekretär" && userEmailFromUrl) {
       // Falls Spielführer und userEmail in der URL ist, nur diesen Nutzer anzeigen
       const selectedUser = users.find(user => user.userEmail === userEmailFromUrl);
       allRounds = selectedUser?.rounds || [];
       setRoundsForWho(" von " + selectedUser?.userName);
-    } else if (currentUser.userRole === "Spielführer") {
+    } else if (currentUser.userRole === "Spielführer" || currentUser.userRole === "Sekretär") {
       // Falls Spielführer ohne userEmail → Alle Runden anzeigen
       users.forEach(user => {
         if (user.rounds) {
