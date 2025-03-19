@@ -70,8 +70,17 @@ const ResultsPage = () => {
         },
       ],
       styles: {
-        header: { fontSize: 18, bold: true },
-        subheader: { fontSize: 14, bold: true, margin: [0, 10, 0, 5] },
+        header: {
+          fontSize: 18,
+          bold: true,
+          alignment: "center",
+          margin: [0, 20, 0, 20],
+        },
+        subheader: {
+          fontSize: 14,
+          bold: true,
+          margin: [0, 20, 0, 10],
+        },
       },
     };
   
