@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import Mailto from "../components/Mailto";
+import { authContext } from "../context/AuthContext";
+import { useContext } from "react";
 
 const RoundDetailsPage = () => {
   const [searchParams] = useSearchParams();
@@ -8,6 +11,7 @@ const RoundDetailsPage = () => {
   const [round, setRound] = useState(null);
   const [editableRound, setEditableRound] = useState(null); // Für die bearbeitbaren Daten
   const [sd, setSD] = useState(null); // Score Differential
+  const { currentUser } = useContext(authContext);
 
   useEffect(() => {
     console.log(roundName, roundEmail);
@@ -69,7 +73,7 @@ const RoundDetailsPage = () => {
   
     // Den Benutzer finden
     let userIndex = users.findIndex((user) => user.userEmail === roundEmail);
-  
+
     if (userIndex === -1) {
       alert("Benutzer nicht gefunden!");
       return;
@@ -93,6 +97,9 @@ const RoundDetailsPage = () => {
     localStorage.setItem("users", JSON.stringify(users));
   
     alert("Änderungen gespeichert!");
+    if (currentUser.userRole == "Spielführer") {
+      Mailto(userData.userEmail, userData.userName, 54, sdValue.toFixed(2));
+    }
   };
   
 

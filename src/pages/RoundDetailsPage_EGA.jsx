@@ -342,7 +342,10 @@ export default function EGAEditForm() {
 
     alert("Runde erfolgreich aktualisiert!");
 
-    Mailto(userData.userEmail, userData.userName, handicap, newHandicap );
+    
+    if (currentUser.userRole == "Spielführer") {
+      Mailto(userData.userEmail, userData.userName, 54, sdValue.toFixed(2));
+    }
   };
 
   return (

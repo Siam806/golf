@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { authContext } from "../context/AuthContext";
 import { useContext } from "react";
 
-
 const SDForm = () => {
   const [slopeRating, setSlopeRating] = useState("113");
   const [courseRating, setCourseRating] = useState("72");
